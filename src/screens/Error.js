@@ -1,6 +1,6 @@
 import { useRouteError, NavLink } from "react-router-dom";
 import classes from "../styles/central.module.css";
-import MainNavigation, { styles } from "./MainNavigation";
+import { styles } from "./MainNavigation";
 
 export default function ErrorPage() {
   const error = useRouteError();

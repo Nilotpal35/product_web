@@ -93,7 +93,7 @@ textarea {
   border-radius: 7px;
 }
 
-.button-ctr {
+.button_ctr {
   margin: 1rem;
   display: flex;
   justify-content: space-evenly;

@@ -3,12 +3,16 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ProductHome from "./screens/ProductHome";
 import Login from "./screens/Login";
 import ErrorPage from "./screens/Error";
-import AddProduct from "./screens/AddProduct";
-import Cart from "./screens/Cart";
+import AddProduct, { action as addFormAction } from "./screens/AddProduct";
+import Cart, { loader as cartLoader } from "./screens/Cart";
 import Order from "./screens/Order";
 import ProductDetail, { loader as DetailLoader } from "./screens/ProductDetail";
 import MainNavigation from "./screens/MainNavigation";
 import Home from "./screens/Home";
+import EditProduct, {
+  loader as EditProductLoader,
+  action as EditFormAction,
+} from "./screens/EditProduct";
 
 const router = createBrowserRouter([
   {
@@ -26,8 +30,19 @@ const router = createBrowserRouter([
         element: <ProductDetail />,
         loader: DetailLoader,
       },
-      { path: "add-product", element: <AddProduct /> },
-      { path: "cart", element: <Cart /> },
+      {
+        path: "add-product",
+        element: <AddProduct />,
+        // loader: AddProductLoader,
+        action: addFormAction,
+      },
+      {
+        path: "edit-product/:prodId",
+        element: <EditProduct />,
+        loader: EditProductLoader,
+        action: EditFormAction,
+      },
+      { path: "cart", element: <Cart />, loader: cartLoader },
       { path: "order", element: <Order /> },
     ],
   },

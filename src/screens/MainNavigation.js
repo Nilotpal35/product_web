@@ -8,6 +8,11 @@ export default function MainNavigation() {
       <div className="App">
         <nav className="App-header">
           <li>
+            <NavLink to={"add-product"} style={styles}>
+              Add Product
+            </NavLink>
+          </li>
+          <li>
             <NavLink to={"product"} style={styles}>
               Product
             </NavLink>

@@ -19,7 +19,10 @@ export default function ProductDetail() {
             <p className={classes.dtitle}>{product.title}</p>
             <p className={classes.dtitle}>{product.price}</p>
             <p className={classes.dtitle}>{product.description}</p>
-            <Link className={classes.cartButton} to={"#"}>
+            <Link
+              className={classes.cartButton}
+              to={`../edit-product/${product._id}`}
+            >
               Edit
             </Link>
           </div>
