@@ -4,7 +4,7 @@ import { styles } from "./MainNavigation";
 
 export default function ErrorPage() {
   const error = useRouteError();
-  console.log('error on JSON', error);
+  console.log("error on JSON", error);
   return (
     <>
       <div className="App">
@@ -26,9 +26,14 @@ export default function ErrorPage() {
           </li>
         </nav>
       </div>
-      <div className={classes.main_div}>
-        <h2 className={classes.title}>Error Page</h2>
-        <h2 className={classes.error}>{error?.data?.message}</h2>
+      <div className={classes.main_div_error}>
+        <h2 style={{ ...textStyle, fontSize: "2rem" }}>Oops...</h2>
+        {/* <div className={classes.error_main}> */}
+        <div style={mainStyle}>
+          <p style={textStyle}>{error.status}</p>
+          <hr style={{ height: "30px" }} />
+          <p style={textStyle}>{error?.data?.message}</p>
+        </div>
       </div>
       <footer className={classes.main_footer}>
         &copy; 2023 Nilotpal &reg; MIT License
@@ -36,3 +41,19 @@ export default function ErrorPage() {
     </>
   );
 }
+// {error?.data?.message}
+
+const mainStyle = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  flexDirection: "row",
+  backgroundColor: "red",
+  borderRadius: "8px",
+};
+
+const textStyle = {
+  fontSize: "1.5rem",
+  margin: "10px",
+  padding: "10px",
+};

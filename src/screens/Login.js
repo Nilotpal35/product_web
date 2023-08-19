@@ -4,7 +4,7 @@ import classes from "../styles/central.module.css";
 export default function Login() {
   return (
     <div
-      className={classes.main_div}
+      className={[classes.main_div]}
       style={{
         height: "100vh",
         justifyContent: "center",
@@ -14,14 +14,14 @@ export default function Login() {
       <h2 className={classes.title}>Login page</h2>
       <div style={{ display: "flex", flexDirection: "row" }}>
         <Link
-          to={"/admin"}
+          to={"login"}
           className={[classes.button]}
           style={{ padding: "1rem" }}
         >
           Login
         </Link>
         <Link
-          to={"/admin"}
+          to={"login"}
           className={[classes.button]}
           style={{ padding: "1rem" }}
         >

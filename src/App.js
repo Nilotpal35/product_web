@@ -13,6 +13,7 @@ import EditProduct, {
   loader as EditProductLoader,
   action as EditFormAction,
 } from "./screens/EditProduct";
+import LoginPage, { action as LoginAction } from "./screens/LoginPage";
 
 const router = createBrowserRouter([
   {
@@ -49,7 +50,13 @@ const router = createBrowserRouter([
   {
     path: "/",
     errorElement: <ErrorPage />,
-    element: <Login />,
+    children: [
+      {
+        index: true,
+        element: <Login />,
+      },
+      { path: "/login", element: <LoginPage />, action : LoginAction },
+    ],
   },
 ]);
 

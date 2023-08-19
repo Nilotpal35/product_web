@@ -6,7 +6,7 @@ import AddEditProductForm from "../components/AddEditProductForm";
 
 export default function AddProduct() {
   const actionData = useActionData();
-  console.log("ACTION DATA", actionData);
+  console.log("ACTION DATA in add product", actionData);
   const [formData, setFormData] = useState({
     title: "",
     price: "",
@@ -48,24 +48,31 @@ export async function action({ request, params }) {
   const formData = Object.fromEntries(form);
 
   console.log("Add product FORM DATA IN ACTION", formData, request.method);
+
+  const uri = process.env.REACT_APP_BACKEND_URI + "admin/add-product";
+  console.log("ADD PRODUCT URI", uri);
   try {
-    const { data } = await axios.post(
-      "http://localhost:8080/add-product",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const { data } = await axios.post(uri, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     console.log("RESPONSE DATA", data);
     await new Promise((res) => setTimeout(res, 1000));
     return redirect("/admin/product");
   } catch (err) {
     // throw json({message : err.response.data.error}, {status : err.response.data.status, statusText
     //  : err.response.data.statusText})
-    // console.log("ERROR IN AXIOS", err.response.data.error);
-    return err?.response.data.error;
+    //console.log("ERROR IN AXIOS", err.response.data.message);
+    //return err?.response.data.error;
+    if (err?.response.status === 401) {
+      throw json(
+        { message: err?.response.data.message },
+        { status: err?.response.status }
+      );
+    } else {
+      return err?.response.data.message;
+    }
   }
 }
 
