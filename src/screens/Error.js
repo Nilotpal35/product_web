@@ -4,6 +4,7 @@ import { styles } from "./MainNavigation";
 
 export default function ErrorPage() {
   const error = useRouteError();
+  console.log('error on JSON', error);
   return (
     <>
       <div className="App">
@@ -27,7 +28,7 @@ export default function ErrorPage() {
       </div>
       <div className={classes.main_div}>
         <h2 className={classes.title}>Error Page</h2>
-        <h2 className={classes.error}>{error.message}</h2>
+        <h2 className={classes.error}>{error?.data?.message}</h2>
       </div>
       <footer className={classes.main_footer}>
         &copy; 2023 Nilotpal &reg; MIT License

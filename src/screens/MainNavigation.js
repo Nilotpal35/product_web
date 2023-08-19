@@ -1,8 +1,10 @@
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink, useNavigation } from "react-router-dom";
 import "../App.css";
 import classes from "../styles/central.module.css";
 
 export default function MainNavigation() {
+  const navigation = useNavigation();
+  console.log('loading state in main navigation', navigation.state)
   return (
     <>
       <div className="App">
@@ -40,7 +42,7 @@ export default function MainNavigation() {
 export const styles = ({ isActive, isPending }) => {
   return {
     fontWeight: isActive ? "bold" : "",
-    color: isPending ? "red" : "black",
+    color: isPending ? "white" : "black",
     backgroundColor: isActive ? "purple" : "grey",
     textDecoration: "none",
     padding: "1rem",

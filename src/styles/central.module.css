@@ -91,6 +91,8 @@ textarea {
   font-weight: 500;
   font-size: large;
   border-radius: 7px;
+  /* border: none; */
+  outline: none;
 }
 
 .button_ctr {
@@ -341,4 +343,42 @@ button:hover {
 
 .pagination {
   margin: 2rem;
+}
+
+.loaderTop {
+  width: 100%;
+  height: 80vh;
+  background-color: #82a2a09c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  color: #003033;
+}
+
+.loaderMain {
+  height: 80vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: #82a2a09c;
+}
+
+.loader {
+  border: 5px solid rgb(0, 0, 0);
+  padding: 12px;
+  border-top: 5px solid transparent;
+  border-radius: 50%;
+  animation: circle 1s linear infinite;
+}
+
+@keyframes circle {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
