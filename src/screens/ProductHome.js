@@ -1,18 +1,9 @@
-import {
-  Outlet,
-  useActionData,
-  useNavigate,
-  useNavigation,
-} from "react-router-dom";
 import ProductGridTile from "../components/ProductGridTile";
 import classes from "../styles/central.module.css";
 import { PRODUCTS } from "../store/ProductsList";
 
 const ProductHome = () => {
-  const navigation = useNavigation();
-  const actionData = useActionData();
-  console.log("loading...", navigation.state);
-  console.log("Action data in product", actionData);
+  
   return (
     <div className={classes.main_div}>
       <div className={classes.container}>

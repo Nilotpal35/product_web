@@ -32,7 +32,9 @@ export default function ErrorPage() {
         <div style={mainStyle}>
           <p style={textStyle}>{error.status}</p>
           <hr style={{ height: "30px" }} />
-          <p style={textStyle}>{error?.data?.message}</p>
+          <p style={textStyle}>
+            {error?.data}
+          </p>
         </div>
       </div>
       <footer className={classes.main_footer}>

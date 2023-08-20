@@ -1,51 +1,56 @@
-import { Form, Link, useActionData } from "react-router-dom";
+import {
+  Form,
+  Link,
+  useActionData,
+  useNavigate,
+  useNavigation,
+  json,
+} from "react-router-dom";
 import classes from "../styles/central.module.css";
 import { useState } from "react";
 import axios from "axios";
+import LoginForm from "../components/LoginForm";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
   const actionData = useActionData();
-  console.log("login action data", actionData);
+  const navigation = useNavigation();
+  const navigate = useNavigate();
+
+  if (actionData && actionData?.status === 201) {
+    setTimeout(() => {
+      navigate("/admin/product");
+    }, 1000);
+  }
+
+  const emailValidation = true;
+  // form.email.trim().includes("@");
+  const passwordValidation = form.password.length > 0;
+  const formValidation = emailValidation && passwordValidation;
+
+  const props = {
+    form: form,
+    setForm: setForm,
+    classes: classes,
+    navigation: navigation,
+    formValidation: formValidation,
+  };
 
   return (
     <>
-      {actionData && <h2 className={classes.title}>{actionData}</h2>}
+      {actionData && (
+        <h2
+          className={classes.title}
+          style={
+            actionData.status === 201 ? { color: "green" } : { color: "red" }
+          }
+        >
+          {actionData.message}
+        </h2>
+      )}
       <div className={classes.main_div_login}>
         <h2 className={classes.title}>Login Page</h2>
-        <Form className={classes.form} method="POST">
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            placeholder="email"
-            value={form.email}
-            onChange={(e) => {
-              setForm((prev) => {
-                return { ...prev, email: e.target.value };
-              });
-            }}
-            required
-          />
-          <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            placeholder="password"
-            value={form.password}
-            onChange={(e) => {
-              setForm((prev) => {
-                return { ...prev, password: e.target.value };
-              });
-            }}
-            required
-          />
-          <button type="submit" className={classes.button_ctr}>
-            Login
-          </button>
-          <Link to="#">Forgot Password?</Link>
-          <Link to="#">New User. SignUp</Link>
-        </Form>
+        <LoginForm {...props} />
       </div>
     </>
   );
@@ -54,16 +59,27 @@ export default function LoginPage() {
 export async function action({ request, params }) {
   const loginForm = await request.formData();
   const formData = Object.fromEntries(loginForm);
-  console.log("LOGIN FORM DATA", formData);
   const uri = process.env.REACT_APP_BACKEND_URI + "login";
-  console.log("URI", uri, request.method);
   try {
-    const { data } = await axios.post(uri, formData, {
+    const response = await axios.post(uri, formData, {
       method: request.method,
     });
-    console.log("RESPONSE FROM LOGIN ", data?.message);
-    return data?.message;
+    console.log("RESPONSE FROM LOGIN ", response.data?.message);
+    await new Promise((res) => setTimeout(res, 1000));
+    return {
+      message: response.data?.message,
+      status: response.status,
+      statusText: response.statusText,
+    };
   } catch (error) {
-    return error.response.data.message;
+    if (error?.response) {
+      return {
+        message: error?.response?.data?.message,
+        status: error?.response?.status,
+        statusText: error?.response?.statusText,
+      };
+    } else {
+      throw json(error?.message, { status: 400 });
+    }
   }
 }
