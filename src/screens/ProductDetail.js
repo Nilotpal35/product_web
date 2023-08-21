@@ -1,6 +1,5 @@
 import { Link, json, useLoaderData, useParams } from "react-router-dom";
 import classes from "../styles/central.module.css";
-import { PRODUCTS } from "../store/ProductsList";
 
 export default function ProductDetail() {
   const productArray = useLoaderData();
@@ -34,7 +33,7 @@ export default function ProductDetail() {
 
 export function loader({ request, params }) {
   const { prodId } = params;
-  const result = PRODUCTS.filter((item) => item._id === prodId);
+  const result = [].filter((item) => item._id === prodId);
   if (result.length === 0) {
     throw json(
       { message: "No Product Found!" },

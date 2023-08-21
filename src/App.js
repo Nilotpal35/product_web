@@ -1,19 +1,20 @@
 import styled from "styled-components";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import ProductHome from "./screens/ProductHome";
+import ProductHome, { loader as productLoader } from "./screens/ProductHome";
 import Login from "./screens/Login";
 import ErrorPage from "./screens/Error";
 import AddProduct, { action as addFormAction } from "./screens/AddProduct";
 import Cart, { loader as cartLoader } from "./screens/Cart";
 import Order from "./screens/Order";
-import ProductDetail, { loader as DetailLoader } from "./screens/ProductDetail";
+// import ProductDetail, { loader as DetailLoader } from "./screens/ProductDetail";
 import MainNavigation from "./screens/MainNavigation";
 import Home from "./screens/Home";
 import EditProduct, {
-  loader as EditProductLoader,
+  // loader as EditProductLoader,
   action as EditFormAction,
 } from "./screens/EditProduct";
 import LoginPage, { action as LoginAction } from "./screens/LoginPage";
+import { action as formAction } from "./components/AddEditProductForm";
 
 const router = createBrowserRouter([
   {
@@ -25,23 +26,18 @@ const router = createBrowserRouter([
       {
         path: "product",
         element: <ProductHome />,
-      },
-      {
-        path: "detail/:prodId",
-        element: <ProductDetail />,
-        loader: DetailLoader,
+        loader: productLoader,
       },
       {
         path: "add-product",
         element: <AddProduct />,
-        // loader: AddProductLoader,
-        action: addFormAction,
+        action: formAction,
       },
+
       {
         path: "edit-product/:prodId",
         element: <EditProduct />,
-        loader: EditProductLoader,
-        action: EditFormAction,
+        action: formAction,
       },
       { path: "cart", element: <Cart />, loader: cartLoader },
       { path: "order", element: <Order /> },
@@ -55,7 +51,7 @@ const router = createBrowserRouter([
         index: true,
         element: <Login />,
       },
-      { path: "/login", element: <LoginPage />, action : LoginAction },
+      { path: "/login", element: <LoginPage />, action: LoginAction },
     ],
   },
 ]);

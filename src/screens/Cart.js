@@ -1,6 +1,7 @@
 import { Link, Navigate, useLoaderData, useNavigate } from "react-router-dom";
 import { PRODUCTS } from "../store/ProductsList";
 import classes from "../styles/central.module.css";
+import { useSelector } from "react-redux/es/hooks/useSelector";
 
 export default function Cart() {
   const cartQty = 0;
@@ -8,14 +9,22 @@ export default function Cart() {
   const products = useLoaderData();
   const productQty = 1;
   const navigate = useNavigate();
+  const reduxProducts = useSelector((state) => state.product.products);
+  console.log("REDUX PRODUCTS IN CART", reduxProducts);
 
   const CartItems = products.map((item) => (
     <div key={item._id} className={classes.cartProducts}>
       <img className={classes.cartImage} src={item.imageUrl} alt={item.title} />
-      <p className={classes.cartTitle}>{item.title} X {productQty} </p>
+      <p className={classes.cartTitle}>
+        {item.title} X {productQty}{" "}
+      </p>
       <div className={classes.cartBtnCtr}>
-        <Link className={classes.cartButton} to={`/admin/detail/${item._id}`}>Delete</Link>
-        <Link className={classes.cartButton} to={`/admin/detail/${item._id}`}>Details</Link>
+        <Link className={classes.cartButton} to={`/admin/detail/${item._id}`}>
+          Delete
+        </Link>
+        <Link className={classes.cartButton} to={`/admin/detail/${item._id}`}>
+          Details
+        </Link>
       </div>
     </div>
   ));

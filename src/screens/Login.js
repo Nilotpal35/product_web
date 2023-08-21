@@ -21,7 +21,7 @@ export default function Login() {
           Login
         </Link>
         <Link
-          to={"login"}
+          to={"/admin"}
           className={[classes.button]}
           style={{ padding: "1rem" }}
         >

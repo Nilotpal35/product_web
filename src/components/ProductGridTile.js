@@ -1,5 +1,8 @@
-import { Link } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import classes from "../styles/central.module.css";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Modal from "./Modal";
 
 export default function ProductGridTile({
   _id,
@@ -8,22 +11,40 @@ export default function ProductGridTile({
   imageUrl,
   description,
 }) {
+  const [showModal, setShowModal] = useState(false);
+
+  const btnHandler = (e) => {
+    setShowModal(!showModal);
+  };
+
+  const props = {
+    btnHandler: btnHandler,
+    title: title,
+    imageUrl: process.env.REACT_APP_BACKEND_URI + "image/" + imageUrl,
+    _id: _id,
+    price: price,
+    description: description,
+  };
+
   return (
-    <div className={classes.products}>
-      {/* <p>{_id}</p> */}
-      <img src={imageUrl} alt={title} className={classes.image} />
-      <p className={classes.title}>{title}</p>
-      {/* <h2>{price}</h2> */}
-      {/* <h2>{description}</h2> */}
-      <div className={classes.btnCtr}>
-        <Link to="#" className={classes.button}>
-          Add
-        </Link>
-        {/* <Link>Delete</Link> */}
-        <Link to={`/admin/detail/${_id}`} className={classes.button}>
-          Details
-        </Link>
+    <>
+      {showModal && <Modal {...props} />}
+      <div className={classes.products}>
+        <img
+          src={process.env.REACT_APP_BACKEND_URI + "image/" + imageUrl}
+          alt={title}
+          className={classes.image}
+        />
+        <p className={classes.title}>{title}</p>
+        <div className={classes.btnCtr}>
+          <Link to="#" className={classes.button}>
+            Add
+          </Link>
+          <button className={classes.button} onClick={btnHandler}>
+            Details
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

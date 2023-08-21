@@ -1,6 +1,13 @@
 import classes from "../styles/central.module.css";
-import { Form, useNavigation } from "react-router-dom";
+import {
+  Form,
+  json,
+  redirect,
+  useActionData,
+  useNavigation,
+} from "react-router-dom";
 import LoadingScreen from "./LodingScreen";
+import axios from "axios";
 
 export default function AddEditProductForm({
   formHandler,
@@ -8,6 +15,10 @@ export default function AddEditProductForm({
   setFormData,
   action,
 }) {
+  console.log("Action", action);
+  const actionData = useActionData();
+  console.log("Action data", actionData);
+
   const navigation = useNavigation();
   const titleValidation = formData?.title.length > 4;
   const descriptionValidation = formData.description.length > 5;
@@ -26,9 +37,9 @@ export default function AddEditProductForm({
             className={classes.form}
             method="POST"
             encType="multipart/form-data"
-            action={action}
             onSubmit={formHandler}
           >
+            <input type="hidden" name="_id" value={formData?._id || ""} />
             <label>Title</label>
             <input
               type="text"
@@ -105,4 +116,53 @@ export default function AddEditProductForm({
       )}
     </>
   );
+}
+
+export async function action({ request, params }) {
+  const form = await request.formData();
+  const formData = Object.fromEntries(form);
+
+  console.log("Edit product FORM DATA IN ACTION", formData);
+
+  const uri = process.env.REACT_APP_BACKEND_URI + action;
+
+  // try {
+  //   const response = await axios.post(uri, formData, {
+  //     headers: {
+  //       "Content-Type": "multipart/form-data",
+  //     },
+  //   });
+  //   console.log("RESPONSE DATA", response?.data);
+  //   await new Promise((res) => setTimeout(res, 1000));
+
+  //   return redirect("/admin/product");
+  // } catch (err) {
+  //   // throw json({message : err.response.data.error}, {status : err.response.data.status, statusText
+  //   //  : err.response.data.statusText})
+  //   //console.log("ERROR IN AXIOS", err.response.data.message);
+  //   //return err?.response.data.error;
+  //   if (err?.response.status === 401) {
+  //     throw json(err?.response.data.message, { status: err?.response.status });
+  //   } else {
+  //     return err?.response.data.message;
+  //   }
+  // }
+  return "hello";
+  // fetch("http://localhost:8080/fileUpload", {
+  //   method: request.method,
+  //   headers: {
+  //     "Content-Type": "multipart/form-data",
+  //   },
+  //   body: formData,
+  // })
+  //   .then((res) => {
+  //     return res.json();
+  //   })
+  //   .then((res) => {
+  //     console.log("RESPONSE IN FETCH", res);
+  //   })
+  //   .catch((err) => {
+  //     console.log("ERROR IN FETCH", err.message);
+  //   });
+  // return "hello";
 }
