@@ -1,11 +1,24 @@
-import { useParams } from "react-router-dom";
+import { useActionData, useLocation, useNavigate } from "react-router-dom";
 import AddEditProductForm from "../components/AddEditProductForm";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import classes from "../styles/central.module.css";
 import { useSelector } from "react-redux";
 
 export default function EditProduct() {
-  const { prodId } = useParams();
+  const actionData = useActionData();
+  const location = useLocation();
+  const searchparams = new URLSearchParams(location.search);
+  const prodId = searchparams.get("prodId");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (actionData && actionData?.status === 201) {
+      setTimeout(() => {
+        navigate("/admin/product");
+      }, 1000);
+    }
+  }, [actionData]);
+
   const ALL_PRODUCTS_REDUX = useSelector((state) => state.product.products);
   const loader = ALL_PRODUCTS_REDUX.find((item) => item._id === prodId);
   console.log("LOADER DATA", ALL_PRODUCTS_REDUX, prodId);
@@ -18,19 +31,24 @@ export default function EditProduct() {
     description: loader?.description || "",
   });
 
-  const formHandler = (e) => {
-    e.preventDefault();
-    console.log("EDIT FORM DATA", formData);
-  };
-
   const props = {
     formData: formData,
     setFormData: setFormData,
-    formHandler: formHandler,
     action: `admin/edit-product`,
   };
+
   return (
     <>
+      {actionData && (
+        <h2
+          className={classes.title}
+          style={
+            actionData.status === 201 ? { color: "green" } : { color: "red" }
+          }
+        >
+          {actionData.message}
+        </h2>
+      )}
       <h2 className={classes.title}>Edit Product</h2>
       <AddEditProductForm {...props} />
     </>

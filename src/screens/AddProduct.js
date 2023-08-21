@@ -1,11 +1,24 @@
-import { useActionData } from "react-router-dom";
+import { useActionData, useNavigate } from "react-router-dom";
 import classes from "../styles/central.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddEditProductForm from "../components/AddEditProductForm";
 
 export default function AddProduct() {
   const actionData = useActionData();
-  console.log("ACTION DATA in add product", actionData);
+  const navigate = useNavigate();
+  const greenSignal = [200, 201, 300, 301];
+  console.log("signal testing", greenSignal.includes(200));
+
+  useEffect(() => {
+    if (actionData && greenSignal.includes(actionData?.status)) {
+      setTimeout(() => {
+        navigate("/admin/product");
+      }, 1000);
+    }
+  }, [actionData]);
+
+  console.log("ACTION DATA", actionData);
+
   const [formData, setFormData] = useState({
     title: "",
     price: "",
@@ -21,7 +34,18 @@ export default function AddProduct() {
 
   return (
     <>
-      {actionData && <h2 className={classes.error}>{actionData}</h2>}
+      {actionData && (
+        <h2
+          className={classes.title}
+          style={
+            greenSignal.includes(actionData?.status)
+              ? { color: "green" }
+              : { color: "red" }
+          }
+        >
+          {actionData.message}
+        </h2>
+      )}
       <h2 className={classes.title}>Add Product</h2>
       <AddEditProductForm {...props} />
     </>

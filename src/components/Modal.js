@@ -27,7 +27,7 @@ export default function Modal({
         <p style={text}> {title}</p>
         <p style={text}> ${price}</p>
         <p style={text}> {description}</p>
-        <Link to={`/admin/edit-product/${_id}`}>Edit</Link>
+        <Link to={`/admin/edit-product?prodId=${_id}`}>Edit</Link>
       </div>
     </div>
   );

@@ -9,12 +9,7 @@ import {
 import LoadingScreen from "./LodingScreen";
 import axios from "axios";
 
-export default function AddEditProductForm({
-  formHandler,
-  formData,
-  setFormData,
-  action,
-}) {
+export default function AddEditProductForm({ formData, setFormData, action }) {
   console.log("Action", action);
   const actionData = useActionData();
   console.log("Action data", actionData);
@@ -37,7 +32,6 @@ export default function AddEditProductForm({
             className={classes.form}
             method="POST"
             encType="multipart/form-data"
-            onSubmit={formHandler}
           >
             <input type="hidden" name="_id" value={formData?._id || ""} />
             <label>Title</label>
@@ -124,45 +118,35 @@ export async function action({ request, params }) {
 
   console.log("Edit product FORM DATA IN ACTION", formData);
 
-  const uri = process.env.REACT_APP_BACKEND_URI + action;
+  const uri =
+    process.env.REACT_APP_BACKEND_URI +
+    (formData._id ? "admin/edit-product" : "admin/add-product");
+  console.log("URI", uri);
 
-  // try {
-  //   const response = await axios.post(uri, formData, {
-  //     headers: {
-  //       "Content-Type": "multipart/form-data",
-  //     },
-  //   });
-  //   console.log("RESPONSE DATA", response?.data);
-  //   await new Promise((res) => setTimeout(res, 1000));
-
-  //   return redirect("/admin/product");
-  // } catch (err) {
-  //   // throw json({message : err.response.data.error}, {status : err.response.data.status, statusText
-  //   //  : err.response.data.statusText})
-  //   //console.log("ERROR IN AXIOS", err.response.data.message);
-  //   //return err?.response.data.error;
-  //   if (err?.response.status === 401) {
-  //     throw json(err?.response.data.message, { status: err?.response.status });
-  //   } else {
-  //     return err?.response.data.message;
-  //   }
-  // }
-  return "hello";
-  // fetch("http://localhost:8080/fileUpload", {
-  //   method: request.method,
-  //   headers: {
-  //     "Content-Type": "multipart/form-data",
-  //   },
-  //   body: formData,
-  // })
-  //   .then((res) => {
-  //     return res.json();
-  //   })
-  //   .then((res) => {
-  //     console.log("RESPONSE IN FETCH", res);
-  //   })
-  //   .catch((err) => {
-  //     console.log("ERROR IN FETCH", err.message);
-  //   });
+  try {
+    const response = await axios.post(uri, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    console.log("RESPONSE DATA", response?.data);
+    //await new Promise((res) => setTimeout(res, 1000));
+    return {
+      message: response.data?.message,
+      status: response.status,
+      statusText: response.statusText,
+    };
+  } catch (error) {
+    if (error?.response) {
+      return {
+        message: error?.response?.data?.message,
+        status: error?.response?.status,
+        statusText: error?.response?.statusText,
+      };
+    } else {
+      throw json(error?.message, { status: 400 });
+    }
+  }
+  
   // return "hello";
 }

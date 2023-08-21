@@ -1,6 +1,4 @@
 import {
-  Form,
-  Link,
   useActionData,
   useNavigate,
   useNavigation,
@@ -11,9 +9,16 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import LoginForm from "../components/LoginForm";
 import { greenSignals } from "../util/Signal";
+import SignUpForm from "../components/SignUpForm";
 
-export default function LoginPage() {
-  const [form, setForm] = useState({ email: "", password: "" });
+export default function SignUpPage() {
+  const [form, setForm] = useState({
+    name: "",
+    dob: "",
+    email: "",
+    password: "",
+    cnfPassword: "",
+  });
   const actionData = useActionData();
   const navigation = useNavigation();
   const navigate = useNavigate();
@@ -21,21 +26,36 @@ export default function LoginPage() {
   useEffect(() => {
     if (actionData && greenSignals.includes(actionData.status)) {
       setTimeout(() => {
-        navigate("/admin/product");
+        navigate("/login");
       }, 1000);
     }
   }, [actionData]);
 
+  const nameValidation = form.name.trim().length > 3;
+  const dobValidation =
+    !!form.dob.length > 0 && new Date(form.dob).toISOString();
   const emailValidation = form.email.trim().includes("@");
   const passwordValidation = form.password.length > 0;
-  const formValidation = emailValidation && passwordValidation;
+  const cnfPasswordValidation =
+    form.cnfPassword.length > 0 && form.cnfPassword === form.password;
+  const formValidation =
+    emailValidation &&
+    passwordValidation &&
+    nameValidation &&
+    cnfPasswordValidation &&
+    dobValidation;
 
   const props = {
-    form: form,
-    setForm: setForm,
-    classes: classes,
-    navigation: navigation,
-    formValidation: formValidation,
+    form,
+    setForm,
+    classes,
+    navigation,
+    formValidation,
+    nameValidation,
+    emailValidation,
+    passwordValidation,
+    cnfPasswordValidation,
+    dobValidation,
   };
 
   return (
@@ -53,8 +73,8 @@ export default function LoginPage() {
         </h2>
       )}
       <div className={classes.main_div_login}>
-        <h2 className={classes.title}>Login Page</h2>
-        <LoginForm {...props} />
+        <h2 className={classes.title}>SignUp Page</h2>
+        <SignUpForm {...props} />
       </div>
     </>
   );
@@ -63,7 +83,8 @@ export default function LoginPage() {
 export async function action({ request, params }) {
   const loginForm = await request.formData();
   const formData = Object.fromEntries(loginForm);
-  const uri = process.env.REACT_APP_BACKEND_URI + "login";
+  console.log("SIGN UP FORM DATA", formData);
+  const uri = process.env.REACT_APP_BACKEND_URI + "signup";
   try {
     const response = await axios.post(uri, formData, {
       method: request.method,
@@ -86,4 +107,9 @@ export async function action({ request, params }) {
       throw json(error?.message, { status: 400 });
     }
   }
+  //   return {
+  //     message: "error?.response?.data?.message",
+  //     status: 500,
+  //     statusText: "error?.response?.statusText",
+  //   };
 }
