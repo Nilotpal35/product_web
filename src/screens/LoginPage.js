@@ -69,6 +69,9 @@ export async function action({ request, params }) {
       method: request.method,
     });
     console.log("RESPONSE FROM LOGIN ", response.data?.message);
+    localStorage.setItem("PU:TOKEN", response.data?.userToken);
+    localStorage.setItem("PU:USER", response.data?.userName);
+
     await new Promise((res) => setTimeout(res, 1000));
     return {
       message: response.data?.message,
@@ -78,7 +81,7 @@ export async function action({ request, params }) {
   } catch (error) {
     if (error?.response) {
       return {
-        message: error?.response?.data?.message,
+        message: error?.response?.data?.message && "wrong email or password!",
         status: error?.response?.status,
         statusText: error?.response?.statusText,
       };

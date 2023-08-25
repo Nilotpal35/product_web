@@ -113,6 +113,10 @@ export default function AddEditProductForm({ formData, setFormData, action }) {
 }
 
 export async function action({ request, params }) {
+  const userToken = localStorage.getItem("PU:TOKEN");
+  if (!userToken) {
+    return redirect("/login");
+  }
   const form = await request.formData();
   const formData = Object.fromEntries(form);
 
@@ -147,6 +151,6 @@ export async function action({ request, params }) {
       throw json(error?.message, { status: 400 });
     }
   }
-  
+
   // return "hello";
 }

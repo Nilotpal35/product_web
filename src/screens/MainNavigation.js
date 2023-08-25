@@ -4,7 +4,8 @@ import classes from "../styles/central.module.css";
 
 export default function MainNavigation() {
   const navigation = useNavigation();
-  console.log('loading state in main navigation', navigation.state)
+  console.log("loading state in main navigation", navigation.state);
+
   return (
     <>
       <div className="App">
@@ -27,6 +28,11 @@ export default function MainNavigation() {
           <li>
             <NavLink to={"order"} style={styles}>
               Order
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to={"/logout"} style={styles}>
+              Logout
             </NavLink>
           </li>
         </nav>

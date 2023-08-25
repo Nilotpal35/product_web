@@ -1,4 +1,10 @@
-import { Link, Navigate, useLoaderData, useNavigate } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  redirect,
+  useLoaderData,
+  useNavigate,
+} from "react-router-dom";
 import { PRODUCTS } from "../store/ProductsList";
 import classes from "../styles/central.module.css";
 import { useSelector } from "react-redux/es/hooks/useSelector";
@@ -43,6 +49,10 @@ export default function Cart() {
 }
 
 export function loader({ request, params }) {
+  const userToken = localStorage.getItem("PU:TOKEN");
+  if (!userToken) {
+    return redirect("/login");
+  }
   const response = PRODUCTS;
   return response;
 }

@@ -10,8 +10,37 @@ export default function ProductGridTile({
   price,
   imageUrl,
   description,
+  serverResponse,
+  setServerResponse,
 }) {
   const [showModal, setShowModal] = useState(false);
+
+  const URI = process.env.REACT_APP_BACKEND_URI + "add-cart";
+
+  const addCartHandler = () => {
+    axios
+      .post(
+        URI,
+        {},
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            userId: localStorage.getItem("PU:TOKEN"),
+            cartId: _id,
+          },
+        }
+      )
+      .then((res) => {
+        console.log("add cart response", res.data);
+        if (res.data?.message) {
+          setServerResponse(res.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log("error in axios add cart");
+      });
+  };
 
   const btnHandler = (e) => {
     setShowModal(!showModal);
@@ -37,9 +66,9 @@ export default function ProductGridTile({
         />
         <p className={classes.title}>{title}</p>
         <div className={classes.btnCtr}>
-          <Link to="#" className={classes.button}>
+          <button className={classes.button} onClick={addCartHandler}>
             Add
-          </Link>
+          </button>
           <button className={classes.button} onClick={btnHandler}>
             Details
           </button>

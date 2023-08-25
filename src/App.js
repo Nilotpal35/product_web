@@ -16,6 +16,7 @@ import EditProduct, {
 import LoginPage, { action as LoginAction } from "./screens/LoginPage";
 import { action as formAction } from "./components/AddEditProductForm";
 import SignUpPage, { action as signUpAction } from "./screens/SignUpPage";
+import LogOut from "./screens/Logout";
 
 const router = createBrowserRouter([
   {
@@ -54,6 +55,7 @@ const router = createBrowserRouter([
       },
       { path: "login", element: <LoginPage />, action: LoginAction },
       { path: "signUp", element: <SignUpPage />, action: signUpAction },
+      { path: "logout", element: <LogOut /> },
     ],
   },
 ]);
