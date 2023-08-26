@@ -1,18 +1,15 @@
 import ProductGridTile from "../components/ProductGridTile";
 import classes from "../styles/central.module.css";
-import { PRODUCTS } from "../store/ProductsList";
 import axios from "axios";
 import { json, redirect, useLoaderData } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { addProduct } from "../store/redux/productStore";
+import Toaster from "../components/Toaster";
 
 const ProductHome = () => {
   const [serverResponse, setServerResponse] = useState("");
   const loaderData = useLoaderData();
-  const products = useSelector((state) => state.product.products);
-  const dispatch = useDispatch();
-  console.log("REDUX PRODUCTS", products);
 
   useEffect(() => {
     if (serverResponse.trim().length > 0) {
@@ -22,17 +19,10 @@ const ProductHome = () => {
     }
   }, [serverResponse]);
 
-  useEffect(() => {
-    if (loaderData.length > 0) {
-      dispatch(addProduct({ item: loaderData }));
-    }
-  }, []);
   return (
     <>
       {serverResponse.trim().length > 0 && (
-        <h2 className={classes.title} style={{ color: "green" }}>
-          {serverResponse}
-        </h2>
+        <Toaster message={serverResponse} status={200} />
       )}
       <div className={classes.main_div}>
         <div className={classes.container}>

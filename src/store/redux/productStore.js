@@ -2,11 +2,11 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   products: [
-    {
-      id: "1",
-      title: "p1",
-      price: "$21",
-    },
+    // {
+    //   id: "1",
+    //   title: "p1",
+    //   price: "$21",
+    // },
   ],
 };
 

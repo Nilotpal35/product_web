@@ -9,19 +9,19 @@ export default function Modal({
   price,
   description,
   imageUrl,
-  btnHandler,
+  setShowModal,
 }) {
   const modalRef = useRef();
 
   const closeModal = (event) => {
     if (modalRef.current && !modalRef.current.contains(event.target)) {
-      btnHandler();
+      setShowModal(false)
     }
   };
 
   return (
     <div style={modalStyle} onClick={closeModal}>
-      <Icons btnHandler={btnHandler} />
+      <Icons btnHandler={closeModal} />
       <div style={modalContent} ref={modalRef}>
         <img src={imageUrl} className={classes.dimage} alt={title} />
         <p style={text}> {title}</p>

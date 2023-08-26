@@ -47,7 +47,7 @@ export default function ProductGridTile({
   };
 
   const props = {
-    btnHandler: btnHandler,
+    setShowModal : setShowModal,
     title: title,
     imageUrl: process.env.REACT_APP_BACKEND_URI + "image/" + imageUrl,
     _id: _id,

@@ -1,10 +1,13 @@
 import styled from "styled-components";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, json, RouterProvider } from "react-router-dom";
 import ProductHome, { loader as productLoader } from "./screens/ProductHome";
 import Login from "./screens/Login";
 import ErrorPage from "./screens/Error";
 import AddProduct, { loader as addProductLoader } from "./screens/AddProduct";
-import Cart, { loader as cartLoader } from "./screens/Cart";
+import Cart, {
+  loader as cartLoader,
+  action as cartAction,
+} from "./screens/Cart";
 import Order from "./screens/Order";
 // import ProductDetail, { loader as DetailLoader } from "./screens/ProductDetail";
 import MainNavigation from "./screens/MainNavigation";
@@ -42,7 +45,12 @@ const router = createBrowserRouter([
         element: <EditProduct />,
         action: formAction,
       },
-      { path: "cart", element: <Cart />, loader: cartLoader },
+      {
+        path: "cart",
+        element: <Cart />,
+        loader: cartLoader,
+        action: cartAction,
+      },
       { path: "order", element: <Order /> },
     ],
   },

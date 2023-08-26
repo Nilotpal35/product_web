@@ -4,7 +4,6 @@ import classes from "../styles/central.module.css";
 export default function ProductDetail() {
   const productArray = useLoaderData();
   const product = productArray[0];
-  console.log("PRODUCT", product);
   return (
     <>
       <div className={classes.main_div}>

@@ -1,6 +1,7 @@
 import { Outlet, NavLink, useNavigation } from "react-router-dom";
 import "../App.css";
 import classes from "../styles/central.module.css";
+import LoadingScreen from "../components/LodingScreen";
 
 export default function MainNavigation() {
   const navigation = useNavigation();
@@ -36,7 +37,13 @@ export default function MainNavigation() {
             </NavLink>
           </li>
         </nav>
-        <Outlet />
+        {navigation.state === "submitting" ? (
+          <LoadingScreen fallbackText={"processing..."} />
+        ) : navigation.state === "loading" ? (
+          <LoadingScreen fallbackText={"loading..."} />
+        ) : (
+          <Outlet />
+        )}
       </div>
       <footer className={classes.main_footer}>
         &copy; 2023 Nilotpal &reg; MIT License

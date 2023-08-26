@@ -2,6 +2,7 @@ import { redirect, useActionData, useNavigate } from "react-router-dom";
 import classes from "../styles/central.module.css";
 import { useEffect, useState } from "react";
 import AddEditProductForm from "../components/AddEditProductForm";
+import Toaster from "../components/Toaster";
 
 export default function AddProduct() {
   const actionData = useActionData();
@@ -35,16 +36,7 @@ export default function AddProduct() {
   return (
     <>
       {actionData && (
-        <h2
-          className={classes.title}
-          style={
-            greenSignal.includes(actionData?.status)
-              ? { color: "green" }
-              : { color: "red" }
-          }
-        >
-          {actionData.message}
-        </h2>
+        <Toaster message={actionData?.message} status={actionData?.status} />
       )}
       <h2 className={classes.title}>Add Product</h2>
       <AddEditProductForm {...props} />
@@ -56,5 +48,7 @@ export async function loader({ request, params }) {
   const userToken = localStorage.getItem("PU:TOKEN");
   if (!userToken) {
     return redirect("/login");
+  } else {
+    return 1;
   }
 }

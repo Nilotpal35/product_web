@@ -8,17 +8,18 @@ export default function Icons({ btnHandler }) {
       style={{
         position: "fixed",
         top: "0",
-        left: "0",
+        right: "0",
         fontSize: "2rem",
+        margin : "1rem"
       }}
     >
-      <button onClick={btnHandler}>
+      <button onClick={btnHandler} style={{borderStyle : "none", backgroundColor: "transparent"}}>
         {/* <p>Close</p> */}
         <FontAwesomeIcon
           icon={faXmark}
           size="2x"
-          spin
-          style={{ color: "purple" }}
+          //spin
+          style={{ color: "white" }}
         />
       </button>
     </div>
