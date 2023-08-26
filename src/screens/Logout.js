@@ -1,4 +1,9 @@
-import { Link, useLocation, useNavigate, useNavigation } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useNavigation,
+} from "react-router-dom";
 import classes from "../styles/central.module.css";
 
 export default function LogOut() {
@@ -30,24 +35,34 @@ export default function LogOut() {
         alignItems: "center",
       }}
     >
-      <h2 className={classes.title}>Login page</h2>
+      {/* <h2 className={classes.title}>Logout page</h2> */}
       <div style={{ display: "flex", flexDirection: "row" }}>
-        <Link
-          to={"#"}
-          className={[classes.button]}
-          style={{ padding: "1rem" }}
-          onClick={logOutHandler}
-        >
-          LogOut
-        </Link>
-        <Link
-          to={"#"}
-          className={[classes.button]}
-          style={{ padding: "1rem" }}
-          onClick={navigate()}
-        >
-          Go Back
-        </Link>
+        {localStorage.getItem("PU:TOKEN") ? (
+          <>
+            <Link
+              className={[classes.button]}
+              style={{ padding: "1rem" }}
+              onClick={logOutHandler}
+            >
+              LogOut
+            </Link>
+            <Link
+              className={[classes.button]}
+              style={{ padding: "1rem" }}
+              onClick={navigate(-1)}
+            >
+              Go Back
+            </Link>
+          </>
+        ) : (
+          <Link
+            to={"/login"}
+            className={[classes.button]}
+            style={{ padding: "1rem" }}
+          >
+            Login
+          </Link>
+        )}
       </div>
     </div>
   );

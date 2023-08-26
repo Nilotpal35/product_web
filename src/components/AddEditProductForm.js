@@ -17,7 +17,7 @@ export default function AddEditProductForm({ formData, setFormData, action }) {
   const navigation = useNavigation();
   const titleValidation = formData?.title.length > 4;
   const descriptionValidation = formData.description.length > 5;
-  const priceValidation = formData.price > 5;
+  const priceValidation = formData.price > 5 && formData.price < 99999;
 
   const validationResult =
     titleValidation && descriptionValidation && priceValidation;
@@ -34,11 +34,12 @@ export default function AddEditProductForm({ formData, setFormData, action }) {
             encType="multipart/form-data"
           >
             <input type="hidden" name="_id" value={formData?._id || ""} />
-            <label>Title</label>
+            <label>TITLE</label>
             <input
               type="text"
               placeholder="title"
               name="title"
+              className={classes.titleInput}
               value={formData.title}
               onChange={(e) => {
                 setFormData((prevData) => {
@@ -51,7 +52,7 @@ export default function AddEditProductForm({ formData, setFormData, action }) {
                   : { border: "2px solid red" }
               }
             />
-            <label>ImageUrl</label>
+            <label>IMAGE</label>
             <input
               type="file"
               name="imageUrl"
@@ -63,8 +64,11 @@ export default function AddEditProductForm({ formData, setFormData, action }) {
                 });
               }}
             />
-            <label>Price</label>
+            <label>PRICE</label>
             <input
+              className={classes.titleInput}
+              min={1}
+              max={99999}
               type="number"
               name="price"
               placeholder="price"
@@ -81,7 +85,7 @@ export default function AddEditProductForm({ formData, setFormData, action }) {
                   : { border: "2px solid red" }
               }
             />
-            <label>Description</label>
+            <label>DESCRIPTION</label>
             <textarea
               rows={5}
               cols={5}

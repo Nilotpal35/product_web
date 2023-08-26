@@ -3,7 +3,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ProductHome, { loader as productLoader } from "./screens/ProductHome";
 import Login from "./screens/Login";
 import ErrorPage from "./screens/Error";
-import AddProduct, { action as addFormAction } from "./screens/AddProduct";
+import AddProduct, { loader as addProductLoader } from "./screens/AddProduct";
 import Cart, { loader as cartLoader } from "./screens/Cart";
 import Order from "./screens/Order";
 // import ProductDetail, { loader as DetailLoader } from "./screens/ProductDetail";
@@ -34,6 +34,7 @@ const router = createBrowserRouter([
         path: "add-product",
         element: <AddProduct />,
         action: formAction,
+        loader: addProductLoader,
       },
 
       {

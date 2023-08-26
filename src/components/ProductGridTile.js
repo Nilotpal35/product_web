@@ -27,7 +27,7 @@ export default function ProductGridTile({
           headers: {
             "Content-Type": "application/json",
             userId: localStorage.getItem("PU:TOKEN"),
-            cartId: _id,
+            itemId: _id,
           },
         }
       )

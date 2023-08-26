@@ -1,4 +1,4 @@
-import { useActionData, useNavigate } from "react-router-dom";
+import { redirect, useActionData, useNavigate } from "react-router-dom";
 import classes from "../styles/central.module.css";
 import { useEffect, useState } from "react";
 import AddEditProductForm from "../components/AddEditProductForm";
@@ -50,4 +50,11 @@ export default function AddProduct() {
       <AddEditProductForm {...props} />
     </>
   );
+}
+
+export async function loader({ request, params }) {
+  const userToken = localStorage.getItem("PU:TOKEN");
+  if (!userToken) {
+    return redirect("/login");
+  }
 }
