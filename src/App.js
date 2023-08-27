@@ -8,7 +8,7 @@ import Cart, {
   loader as cartLoader,
   action as cartAction,
 } from "./screens/Cart";
-import Order from "./screens/Order";
+import Order, { loader as getOrderLoader } from "./screens/Order";
 // import ProductDetail, { loader as DetailLoader } from "./screens/ProductDetail";
 import MainNavigation from "./screens/MainNavigation";
 import Home from "./screens/Home";
@@ -51,7 +51,7 @@ const router = createBrowserRouter([
         loader: cartLoader,
         action: cartAction,
       },
-      { path: "order", element: <Order /> },
+      { path: "order", element: <Order />, loader: getOrderLoader },
     ],
   },
   {

@@ -1,33 +1,46 @@
-import { json, redirect, useActionData, useLoaderData } from "react-router-dom";
+import {
+  Link,
+  json,
+  redirect,
+  useActionData,
+  useLoaderData,
+  useSubmit,
+} from "react-router-dom";
 import classes from "../styles/central.module.css";
 import axios from "axios";
 import CartGridTIle from "../components/CartGridTile";
-import { greenSignals } from "../util/Signal";
+import { greenSignals, redSignals } from "../util/Signal";
 import { useEffect, useState } from "react";
 import Toaster from "../components/Toaster";
 
 export default function Cart() {
   const [serverResponse, setServerResponse] = useState("");
+  const [serverStatus, setServerStatus] = useState("");
+  const [cartItems, setCartItems] = useState([]);
   const actionData = useActionData();
-  const { cartItems, allProducts } = useLoaderData();
+  const { cart, allProducts } = useLoaderData();
+  // const submit = useSubmit();
 
-  const cartsProdIds = cartItems?.cartItems?.map((item) => {
+  useEffect(() => {
+    setCartItems(cart?.cartItems);
+  }, [cart]);
+
+  const cartsProdIds = cartItems?.map((item) => {
     return item.prodId;
   });
 
   const finalCartItems = allProducts.filter((item) =>
-    cartsProdIds.includes(item._id)
+    cartsProdIds?.includes(item._id)
   );
 
-  const cartQty = cartItems.cartItems?.reduce((acc, curr) => {
+  const cartQty = cartItems?.reduce((acc, curr) => {
     return (acc = acc + curr.qty);
   }, 0);
 
   const totalPrice = finalCartItems.reduce((acc, curr) => {
     return (acc =
       acc +
-      curr.price *
-        cartItems?.cartItems?.find((item) => item.prodId === curr._id).qty);
+      curr.price * cartItems?.find((item) => item.prodId === curr._id).qty);
   }, 0);
 
   useEffect(() => {
@@ -39,12 +52,43 @@ export default function Cart() {
     }
   }, [actionData]);
 
+  const orderHandler = async () => {
+    // submit({ prodId: "abcdefg" }, { method: "POST" });
+    console.log("final order items", cartItems);
+    const modifiedCart = cartItems?.map((item) => {
+      return { ...item, ...finalCartItems.find((i) => item.prodId === i._id) };
+    });
+    console.log("final cart items", modifiedCart);
+    try {
+      const URI = process.env.REACT_APP_BACKEND_URI + "post-order";
+      const response = await axios.post(URI, modifiedCart, {
+        headers: {
+          "Content-Type": "application/json",
+          userid: localStorage.getItem("PU:TOKEN"),
+        },
+      });
+      console.log("response on post order", response);
+      setServerResponse(response?.data?.message);
+      setServerStatus(response?.status);
+    } catch (error) {
+      console.log("error while ordering item", error);
+      // json(error?.response?.data?.message, { status: error?.response?.status });
+      setServerResponse(error?.response?.data?.message);
+      setServerStatus(error?.response?.status);
+    }
+    setTimeout(() => {
+      setServerResponse("");
+    }, 2000);
+  };
+
   return (
     <>
-      {greenSignals.includes(actionData?.status) &&
-        serverResponse.trim().length > 0 && (
-          <Toaster message={actionData?.message} status={actionData?.status} />
-        )}
+      {serverResponse.trim().length > 0 && (
+        <Toaster
+          message={actionData?.message || serverResponse}
+          status={actionData?.status || serverStatus}
+        />
+      )}
       <div className={classes.main_div}>
         <div className={classes.cartHeader}>
           <p style={{ fontSize: "1rem", fontWeight: "600" }}>
@@ -62,7 +106,16 @@ export default function Cart() {
         ) : (
           <h2 className={classes.title}>No items left in your cart</h2>
         )}
+        {finalCartItems.length > 0 && (
+          <>
+            <hr style={hrStyle} />
+            <button style={buttonStyle} onClick={orderHandler}>
+              Order Now
+            </button>
+          </>
+        )}
       </div>
+      {/* <p>Cart page</p> */}
     </>
   );
 }
@@ -83,7 +136,7 @@ export async function loader({ request, params }) {
     const URI2 = process.env.REACT_APP_BACKEND_URI + "products";
     const response2 = await axios.get(URI2);
     if (response.data) {
-      return { cartItems: response.data, allProducts: response2?.data };
+      return { cart: response.data, allProducts: response2?.data };
     } else {
       throw json("No cart fetched", {
         status: response.status,
@@ -99,21 +152,43 @@ export async function loader({ request, params }) {
 }
 
 export async function action({ request, params }) {
-  const formData = await request.formData();
-  const prodId = formData.get("prodId");
-  try {
-    const URI = process.env.REACT_APP_BACKEND_URI + `delete-cart/${prodId}`;
-    const response = await axios.delete(URI, {
-      headers: {
-        userid: localStorage.getItem("PU:TOKEN") || "",
-      },
-    });
-    console.log("response in delete cart", response.data);
-    return { message: response.data.message, status: response.status };
-  } catch (error) {
-    throw json(error.response.data.message, {
-      status: error.response.status,
-      statusText: error.response.statusText,
-    });
+  if (request.method === "DELETE") {
+    const formData = await request.formData();
+    const prodId = formData.get("prodId");
+    try {
+      const URI = process.env.REACT_APP_BACKEND_URI + `delete-cart/${prodId}`;
+      const response = await axios.delete(URI, {
+        headers: {
+          userid: localStorage.getItem("PU:TOKEN") || "",
+        },
+      });
+      console.log("response in delete cart", response.data);
+      return { message: response.data.message, status: response.status };
+    } catch (error) {
+      throw json(error.response.data.message, {
+        status: error.response.status,
+        statusText: error.response.statusText,
+      });
+    }
+  } else if (request.method === "POST") {
+    const form = await request.formData();
+    const formData = Object.fromEntries(form);
+    console.log("FORM DATA", formData);
+    return "hello";
   }
 }
+
+const buttonStyle = {
+  padding: "1rem",
+  backgroundColor: "rgb(200,100,150)",
+  fontSize: "1rem",
+  fontWeight: "600",
+  borderStyle: "none",
+};
+
+const hrStyle = {
+  width: "90%",
+  border: "1px solid black",
+  borderRadius: "4px",
+  margin: "1rem 0",
+};
