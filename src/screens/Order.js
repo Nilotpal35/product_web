@@ -43,6 +43,7 @@ export async function loader({ request, params }) {
     const response = await axios.get(URI, {
       headers: {
         userid: userToken,
+        Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
       },
     });
     console.log("RESPONSE IN ORDER", response?.data);

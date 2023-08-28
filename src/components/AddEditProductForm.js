@@ -135,6 +135,7 @@ export async function action({ request, params }) {
     const response = await axios.post(uri, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
+        Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
       },
     });
     console.log("RESPONSE DATA", response?.data);

@@ -55,7 +55,12 @@ export async function loader() {
   } else {
     try {
       const response = await axios.get(
-        process.env.REACT_APP_BACKEND_URI + "products"
+        process.env.REACT_APP_BACKEND_URI + "products",
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+          },
+        }
       );
       if (response.data) {
         return response.data;

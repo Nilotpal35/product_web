@@ -77,6 +77,7 @@ export default function Cart() {
         headers: {
           "Content-Type": "application/json",
           userid: localStorage.getItem("PU:TOKEN"),
+          Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
         },
       });
       console.log("response on post order", response);
@@ -149,10 +150,15 @@ export async function loader({ request, params }) {
       headers: {
         "Content-Type": "applcation/json",
         userid: userToken,
+        Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
       },
     });
     const URI2 = process.env.REACT_APP_BACKEND_URI + "products";
-    const response2 = await axios.get(URI2);
+    const response2 = await axios.get(URI2, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+      },
+    });
     if (response.data) {
       return { cart: response.data, allProducts: response2?.data };
     } else {
@@ -178,6 +184,7 @@ export async function action({ request, params }) {
       const response = await axios.delete(URI, {
         headers: {
           userid: localStorage.getItem("PU:TOKEN") || "",
+          Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
         },
       });
       console.log("response in delete cart", response.data);

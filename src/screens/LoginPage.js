@@ -68,8 +68,9 @@ export async function action({ request, params }) {
     const response = await axios.post(uri, formData, {
       method: request.method,
     });
-    console.log("RESPONSE FROM LOGIN ", response.data?.message);
+    console.log("RESPONSE FROM LOGIN ", response.data);
     localStorage.setItem("PU:TOKEN", response.data?.userToken);
+    localStorage.setItem("JWT:TOKEN", response.data?.token);
     localStorage.setItem("PU:USER", response.data?.userName);
 
     await new Promise((res) => setTimeout(res, 1000));

@@ -28,6 +28,7 @@ export default function ProductGridTile({
             "Content-Type": "application/json",
             userId: localStorage.getItem("PU:TOKEN"),
             itemId: _id,
+            Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
           },
         }
       )
@@ -47,7 +48,7 @@ export default function ProductGridTile({
   };
 
   const props = {
-    setShowModal : setShowModal,
+    setShowModal: setShowModal,
     title: title,
     imageUrl: process.env.REACT_APP_BACKEND_URI + "image/" + imageUrl,
     _id: _id,

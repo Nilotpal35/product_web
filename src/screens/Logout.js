@@ -11,10 +11,12 @@ export default function LogOut() {
   const logOutHandler = async () => {
     const userToken = localStorage.getItem("PU:TOKEN");
     const userName = localStorage.getItem("PU:USER");
-    if (userName && userToken) {
+    const jwtToken = localStorage.getItem("JWT:TOKEN");
+    if (userName && userToken && jwtToken) {
       try {
         localStorage.removeItem("PU:TOKEN");
         localStorage.removeItem("PU:USER");
+        localStorage.removeItem("JWT:TOKEN");
         console.log("Successfully logged Out");
         console.log("USER TOKEN", userToken && userToken);
         console.log("USER NAME", userName && userName);
