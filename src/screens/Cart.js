@@ -4,6 +4,7 @@ import {
   redirect,
   useActionData,
   useLoaderData,
+  useNavigate,
   useSubmit,
 } from "react-router-dom";
 import classes from "../styles/central.module.css";
@@ -19,7 +20,17 @@ export default function Cart() {
   const [cartItems, setCartItems] = useState([]);
   const actionData = useActionData();
   const { cart, allProducts } = useLoaderData();
+  const [loader, setLoader] = useState(false);
   // const submit = useSubmit();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (greenSignals.includes(serverStatus)) {
+        navigate("/admin/order#bottom");
+      }
+    }, 2000);
+  }, [serverStatus, navigate]);
 
   useEffect(() => {
     setCartItems(cart?.cartItems);
@@ -48,12 +59,13 @@ export default function Cart() {
       setServerResponse(actionData?.message);
       setTimeout(() => {
         setServerResponse("");
-      }, 3000);
+      }, 2000);
     }
   }, [actionData]);
 
   const orderHandler = async () => {
     // submit({ prodId: "abcdefg" }, { method: "POST" });
+    setLoader(true);
     console.log("final order items", cartItems);
     const modifiedCart = cartItems?.map((item) => {
       return { ...item, ...finalCartItems.find((i) => item.prodId === i._id) };
@@ -76,8 +88,10 @@ export default function Cart() {
       setServerResponse(error?.response?.data?.message);
       setServerStatus(error?.response?.status);
     }
+
     setTimeout(() => {
       setServerResponse("");
+      setLoader(false);
     }, 2000);
   };
 
@@ -109,8 +123,12 @@ export default function Cart() {
         {finalCartItems.length > 0 && (
           <>
             <hr style={hrStyle} />
-            <button style={buttonStyle} onClick={orderHandler}>
-              Order Now
+            <button
+              style={loader ? loaderButtonStyle : buttonStyle}
+              onClick={orderHandler}
+              disabled={loader}
+            >
+              {loader ? "Ordering..." : "Order Now"}
             </button>
           </>
         )}
@@ -183,6 +201,14 @@ const buttonStyle = {
   backgroundColor: "rgb(200,100,150)",
   fontSize: "1rem",
   fontWeight: "600",
+  borderStyle: "none",
+};
+const loaderButtonStyle = {
+  padding: "1rem",
+  backgroundColor: "grey",
+  color: "black",
+  fontSize: "1rem",
+  fontWeight: "500",
   borderStyle: "none",
 };
 

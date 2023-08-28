@@ -2,10 +2,24 @@ import { json, redirect, useLoaderData } from "react-router-dom";
 import classes from "../styles/central.module.css";
 import axios from "axios";
 import OrderGridTile from "../components/OrderGridTile";
+import { useEffect } from "react";
+// import { useEffect } from "react";
 
 export default function Order() {
+  //navigate the page into particular position
+  // useEffect(() => {
+  //   const targetElement = document.getElementById("bottom");
+  //   targetElement.scrollIntoView({ behavior: "smooth" });
+  // }, []);
+
   const { message, orderItems } = useLoaderData();
-  console.log("order loader data", message, orderItems);
+
+  orderItems?.sort((a, b) => {
+    return new Date(b.orderAt).getTime() > new Date(a.orderAt).getTime()
+      ? 1
+      : -1;
+  });
+
   return (
     <>
       <div className={classes.main_div}>
@@ -14,6 +28,7 @@ export default function Order() {
           <OrderGridTile key={item.orderAt} {...item} />
         ))}
       </div>
+      <div id="bottom"></div>
     </>
   );
 }
