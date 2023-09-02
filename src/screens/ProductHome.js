@@ -17,6 +17,7 @@ import Toaster from "../components/Toaster";
 
 const ProductHome = () => {
   const [serverResponse, setServerResponse] = useState("");
+  const [serverStatus, setServerStatus] = useState(null);
   const loaderData = useLoaderData();
   const location = useLocation();
   const searchparams = new URLSearchParams(location.search);
@@ -27,21 +28,23 @@ const ProductHome = () => {
   useEffect(() => {
     if (loaderData?.message) {
       setServerResponse(loaderData?.message);
+      setServerStatus(loaderData?.status);
     }
   }, [loaderData]);
 
-  // useEffect(() => {
-  //   if (serverResponse.trim().length > 0) {
-  //     setTimeout(() => {
-  //       setServerResponse("");
-  //     }, 5000);
-  //   }
-  // }, [serverResponse]);
+  useEffect(() => {
+    if (serverResponse.trim().length > 0) {
+      setTimeout(() => {
+        setServerResponse("");
+        setServerStatus(null);
+      }, 2000);
+    }
+  }, [serverResponse]);
 
   return (
     <>
       {serverResponse.trim().length > 0 && (
-        <Toaster message={serverResponse} status={loaderData?.status} />
+        <Toaster message={serverResponse} status={serverStatus} />
       )}
       <div className={classes.main_div}>
         <div className={classes.container}>
@@ -57,6 +60,8 @@ const ProductHome = () => {
                 imageUrl={item.imageUrl}
                 serverResponse={serverResponse}
                 setServerResponse={setServerResponse}
+                serverStatus={serverStatus}
+                setServerStatus={setServerStatus}
               />
             ))}
         </div>
@@ -112,7 +117,7 @@ export async function loader({ request, params }) {
       const URI = process.env.REACT_APP_BACKEND_URI + "graphql";
       const response = await axios.post(URI, graphqlQuery, {
         headers: {
-          Authorization: "Bearer 1" + localStorage.getItem("JWT:TOKEN"),
+          Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
         },
       });
       const { errors, data } = response.data;

@@ -12,36 +12,83 @@ export default function ProductGridTile({
   description,
   serverResponse,
   setServerResponse,
+  serverStatus,
+  setServerStatus,
 }) {
   const [showModal, setShowModal] = useState(false);
 
-  const URI = process.env.REACT_APP_BACKEND_URI + "add-cart";
+  const URI = process.env.REACT_APP_BACKEND_URI + "graphql";
 
-  const addCartHandler = () => {
-    axios
-      .post(
-        URI,
-        {},
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            userId: localStorage.getItem("PU:TOKEN"),
-            itemId: _id,
-            Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
-          },
+  const query = `
+      mutation postAddCart($input : postAddCartForm) {
+        postAddCart(input : $input){
+          message
+          status
         }
-      )
-      .then((res) => {
-        console.log("add cart response", res.data);
-        if (res.data?.message) {
-          setServerResponse(res.data?.message);
-        }
-      })
-      .catch((err) => {
-        console.log("error in axios add cart");
-      });
+      }
+    `;
+  const graphqlQuery = {
+    query,
+    variables: {
+      input: {
+        userId: localStorage.getItem("PU:TOKEN"),
+        prodId: _id,
+      },
+    },
   };
+
+  const addCartHandler = async () => {
+    try {
+      const response = await axios.post(URI, graphqlQuery, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+        },
+      });
+      console.log("RESPONSE IN ADD CART", response.data);
+      const { errors, data } = response.data;
+      if (errors) {
+        console.log("ERRORS OBJECT IN RESPONSE", errors);
+        let errorMessage = "";
+        errors.map((item) => {
+          errorMessage += "-> " + item.message;
+        });
+        setServerResponse(errorMessage);
+        setServerStatus(400);
+        //setServerResponse(err)
+      } else if (data.postAddCart) {
+        setServerResponse(data.postAddCart.message);
+        setServerStatus(data.postAddCart.status);
+      }
+    } catch (error) {
+      setServerResponse(error?.response?.data?.message || "Some Axios Error");
+      setServerStatus(error?.response?.status || 400);
+      console.log("ERROR IN CATCH BLOCK ", error);
+    }
+  };
+  // axios
+  //   .post(
+  //     URI,
+  //     {},
+  //     {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         userId: localStorage.getItem("PU:TOKEN"),
+  //         itemId: _id,
+  //         Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+  //       },
+  //     }
+  //   )
+  //   .then((res) => {
+  //     console.log("add cart response", res.data);
+  //     if (res.data?.message) {
+  //       setServerResponse(res.data?.message);
+  //     }
+  //   })
+  //   .catch((err) => {
+  //     console.log("error in axios add cart");
+  //   });
+  // };
 
   const btnHandler = (e) => {
     setShowModal(!showModal);
