@@ -17,7 +17,7 @@ import Toaster from "../components/Toaster";
 export default function Cart() {
   const [serverResponse, setServerResponse] = useState("");
   const [serverStatus, setServerStatus] = useState("");
-  const [cartItems, setCartItems] = useState([]);
+  // const [cartItems, setCartItems] = useState([]);
   const actionData = useActionData();
   const { cart, allProducts } = useLoaderData();
   const [loader, setLoader] = useState(false);
@@ -32,15 +32,15 @@ export default function Cart() {
     }, 2000);
   }, [serverStatus, navigate]);
 
-  useEffect(() => {
-    setCartItems(cart?.cartItems);
-  }, [cart]);
+  console.log("cart all prodcust", cart, allProducts);
+
+  const cartItems = cart?.cartItems;
 
   const cartsProdIds = cartItems?.map((item) => {
     return item.prodId;
   });
 
-  const finalCartItems = allProducts.filter((item) =>
+  const finalCartItems = allProducts.products?.filter((item) =>
     cartsProdIds?.includes(item._id)
   );
 

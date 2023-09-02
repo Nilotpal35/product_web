@@ -2,13 +2,13 @@ import ProductGridTile from "../components/ProductGridTile";
 import classes from "../styles/central.module.css";
 import axios from "axios";
 import {
-  Link,
+  // Link,
   NavLink,
   json,
   redirect,
   useLoaderData,
   useLocation,
-  useNavigate,
+  // useNavigate,
 } from "react-router-dom";
 // import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
@@ -25,23 +25,29 @@ const ProductHome = () => {
   // const navigate = useNavigate();
 
   useEffect(() => {
-    if (serverResponse.trim().length > 0) {
-      setTimeout(() => {
-        setServerResponse("");
-      }, 2000);
+    if (loaderData?.message) {
+      setServerResponse(loaderData?.message);
     }
-  }, [serverResponse]);
+  }, [loaderData]);
+
+  // useEffect(() => {
+  //   if (serverResponse.trim().length > 0) {
+  //     setTimeout(() => {
+  //       setServerResponse("");
+  //     }, 5000);
+  //   }
+  // }, [serverResponse]);
 
   return (
     <>
       {serverResponse.trim().length > 0 && (
-        <Toaster message={serverResponse} status={200} />
+        <Toaster message={serverResponse} status={loaderData?.status} />
       )}
       <div className={classes.main_div}>
         <div className={classes.container}>
           {/* <h2>This is product page</h2> */}
           {loaderData?.products &&
-            loaderData?.products.map((item) => (
+            loaderData?.products?.map((item) => (
               <ProductGridTile
                 key={item._id}
                 _id={item._id}
@@ -55,65 +61,19 @@ const ProductHome = () => {
             ))}
         </div>
         <div style={{ position: "absolute", bottom: "100px" }}>
-          {
-            for(let i in loaderData.totalpages)
-            {
-              <NavLink
-                to={"/admin/product?page=1"}
-                style={{
-                  backgroundColor: page == item ? "purple" : "grey",
-                  color: page == item ? "white" : "black",
-                  fontSize: "1rem",
-                  padding: "1rem",
-                }}
-              >
-                {item}
-              </NavLink>
+          {loaderData?.totalPages?.map((item) => (
+            <NavLink
+              to={`/admin/product?page=${item}`}
+              style={{
+                backgroundColor: page == item ? "purple" : "grey",
+                color: page == item ? "white" : "black",
+                fontSize: "1rem",
+                padding: "1rem",
               }}
-          {/* <NavLink
-            to={"/admin/product?page=1"}
-            style={{
-              backgroundColor: page == 1 || page == null ? "purple" : "grey",
-              color: page == 1 || page == null ? "white" : "black",
-              fontSize: "1rem",
-              padding: "1rem",
-            }}
-          >
-            1
-          </NavLink>
-          <NavLink
-            to={"/admin/product?page=2"}
-            style={{
-              backgroundColor: page == 2 ? "purple" : "grey",
-              color: page == 2 ? "white" : "black",
-              fontSize: "1em",
-              padding: "1rem",
-            }}
-          >
-            2
-          </NavLink>
-          <NavLink
-            to={"/admin/product?page=3"}
-            style={{
-              backgroundColor: page == 3 ? "purple" : "grey",
-              color: page == 3 ? "white" : "black",
-              fontSize: "1rem",
-              padding: "1rem",
-            }}
-          >
-            3
-          </NavLink>
-          <NavLink
-            to={"/admin/product?page=4"}
-            style={{
-              backgroundColor: page == 4 ? "purple" : "grey",
-              color: page == 4 ? "white" : "black",
-              fontSize: "1rem",
-              padding: "1rem",
-            }}
-          >
-            4
-          </NavLink> */}
+            >
+              {item}
+            </NavLink>
+          ))}
         </div>
       </div>
     </>
@@ -123,35 +83,62 @@ const ProductHome = () => {
 export default ProductHome;
 
 export async function loader({ request, params }) {
-  const pageNo = request.url?.split("?")[1]?.split("=")[1];
   const userToken = localStorage.getItem("PU:TOKEN");
   if (!userToken) {
     return redirect("/login");
   } else {
-    try {
-      const response = await axios.get(
-        process.env.REACT_APP_BACKEND_URI + `products?page=${pageNo}`,
-        {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
-          },
+    const pageNo = request.url?.split("?")[1]?.split("=")[1];
+    const query = `
+      query postProducts($page : Int){
+        postProducts(page : $page) {
+          products {
+            _id
+            title
+            price
+            imageUrl
+            description
+          }
+          totalPages
         }
-      );
-      if (response.data) {
+      }
+    `;
+    const graphqlQuery = {
+      query,
+      variables: {
+        page: +pageNo,
+      },
+    };
+    try {
+      const URI = process.env.REACT_APP_BACKEND_URI + "graphql";
+      const response = await axios.post(URI, graphqlQuery, {
+        headers: {
+          Authorization: "Bearer 1" + localStorage.getItem("JWT:TOKEN"),
+        },
+      });
+      const { errors, data } = response.data;
+      if (errors) {
+        let errorMessage = "";
+        errors.map((item) => {
+          errorMessage += "-> " + item.message;
+        });
+
         return {
-          products: response.data.products,
-          totalpages: response.data.totalPage,
+          message: errorMessage,
+          status: 400,
+          statusText: "error with login data",
+          products: [],
+          totalPages: [],
         };
       } else {
-        throw json("No products fetched", {
-          status: response.status,
-          statusText: response.statusText,
-        });
+        const { products, totalPages } = response.data.data.postProducts;
+        // console.log("Response in products page", products, totalPages);
+        return { products, totalPages };
       }
     } catch (error) {
-      throw json(error.message, {
-        status: error.status,
-        statusText: error.statusText,
+      console.log("Axios error", error);
+      throw json(error.response.data.message, {
+        status: error.response.status,
+        statusText: error.response.statusText,
       });
     }
   }

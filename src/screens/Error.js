@@ -8,23 +8,40 @@ export default function ErrorPage() {
   return (
     <>
       <div className="App">
-        <nav className="App-header">
-          <li>
-            <NavLink to={"/admin/product"} style={styles}>
-              Product
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to={"/admin/cart"} style={styles}>
-              Cart
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to={"/admin/order"} style={styles}>
-              Order
-            </NavLink>
-          </li>
-        </nav>
+        {localStorage.getItem("PU:TOKEN") ? (
+          <nav className="App-header">
+            <li>
+              <NavLink to={"/admin/product"} style={styles}>
+                Product
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={"/admin/cart"} style={styles}>
+                Cart
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={"/admin/order"} style={styles}>
+                Order
+              </NavLink>
+            </li>
+            {error?.data == "jwt expired" && (
+              <li>
+                <NavLink to={"/logout"} style={styles}>
+                  Logout
+                </NavLink>
+              </li>
+            )}
+          </nav>
+        ) : (
+          <nav className="App-header">
+            <li>
+              <NavLink to={"/login"} style={styles}>
+                login
+              </NavLink>
+            </li>
+          </nav>
+        )}
       </div>
       <div className={classes.main_div_error}>
         <h2 style={{ ...textStyle, fontSize: "2rem" }}>Oops...</h2>
@@ -32,9 +49,7 @@ export default function ErrorPage() {
         <div style={mainStyle}>
           <p style={textStyle}>{error.status}</p>
           <hr style={{ height: "30px" }} />
-          <p style={textStyle}>
-            {error?.data}
-          </p>
+          <p style={textStyle}>{error?.data}</p>
         </div>
       </div>
       <footer className={classes.main_footer}>
