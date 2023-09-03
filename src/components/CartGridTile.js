@@ -10,12 +10,11 @@ export default function CartGridTIle({
   imageUrl,
   price,
   description,
+  qty,
 }) {
   const [showModal, setShowModal] = useState(false);
   const deleteRef = useRef();
   const submit = useSubmit();
-  const { cart } = useLoaderData();
-  const qty = cart?.cartItems?.find((i) => i.prodId === _id).qty;
 
   const btnHandler = (e) => {
     if (deleteRef.current && !deleteRef.current.contains(e.target)) {

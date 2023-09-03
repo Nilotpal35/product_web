@@ -19,81 +19,59 @@ export default function Cart() {
   const [serverStatus, setServerStatus] = useState("");
   // const [cartItems, setCartItems] = useState([]);
   const actionData = useActionData();
-  const { cart, allProducts } = useLoaderData();
+  const { message, status, product } = useLoaderData();
   const [loader, setLoader] = useState(false);
-  // const submit = useSubmit();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    setTimeout(() => {
-      if (greenSignals.includes(serverStatus)) {
-        navigate("/admin/order#bottom");
-      }
-    }, 2000);
-  }, [serverStatus, navigate]);
+  if (message && status) {
+    setServerResponse(message);
+    setServerStatus(status);
+  }
 
-  console.log("cart all prodcust", cart, allProducts);
+  console.log("CART LOADER DATA", product);
 
-  const cartItems = cart?.cartItems;
-
-  const cartsProdIds = cartItems?.map((item) => {
-    return item.prodId;
-  });
-
-  const finalCartItems = allProducts.products?.filter((item) =>
-    cartsProdIds?.includes(item._id)
-  );
-
-  const cartQty = cartItems?.reduce((acc, curr) => {
-    return (acc = acc + curr.qty);
+  const cartQty = product?.reduce((curr, acc) => {
+    return curr + +acc.qty;
   }, 0);
 
-  const totalPrice = finalCartItems.reduce((acc, curr) => {
-    return (acc =
-      acc +
-      curr.price * cartItems?.find((item) => item.prodId === curr._id).qty);
+  console.log("CART QTY", cartQty);
+
+  const totalPrice = product?.reduce((curr, acc) => {
+    return (curr += +(+acc.price * acc.qty));
   }, 0);
 
-  useEffect(() => {
-    if (actionData?.message.length > 0) {
-      setServerResponse(actionData?.message);
-      setTimeout(() => {
-        setServerResponse("");
-      }, 2000);
-    }
-  }, [actionData]);
+  console.log("TOTAL PRICE", totalPrice);
 
   const orderHandler = async () => {
     // submit({ prodId: "abcdefg" }, { method: "POST" });
-    setLoader(true);
-    console.log("final order items", cartItems);
-    const modifiedCart = cartItems?.map((item) => {
-      return { ...item, ...finalCartItems.find((i) => item.prodId === i._id) };
-    });
-    console.log("final cart items", modifiedCart);
-    try {
-      const URI = process.env.REACT_APP_BACKEND_URI + "post-order";
-      const response = await axios.post(URI, modifiedCart, {
-        headers: {
-          "Content-Type": "application/json",
-          userid: localStorage.getItem("PU:TOKEN"),
-          Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
-        },
-      });
-      console.log("response on post order", response);
-      setServerResponse(response?.data?.message);
-      setServerStatus(response?.status);
-    } catch (error) {
-      console.log("error while ordering item", error);
-      // json(error?.response?.data?.message, { status: error?.response?.status });
-      setServerResponse(error?.response?.data?.message);
-      setServerStatus(error?.response?.status);
-    }
-
-    setTimeout(() => {
-      setServerResponse("");
-      setLoader(false);
-    }, 2000);
+    // setLoader(true);
+    // console.log("final order items", cartItems);
+    // const modifiedCart = cartItems?.map((item) => {
+    //   return { ...item, ...finalCartItems.find((i) => item.prodId === i._id) };
+    // });
+    // console.log("final cart items", modifiedCart);
+    // try {
+    //   const URI = process.env.REACT_APP_BACKEND_URI + "post-order";
+    //   const response = await axios.post(URI, modifiedCart, {
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       userid: localStorage.getItem("PU:TOKEN"),
+    //       Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+    //     },
+    //   });
+    //   console.log("response on post order", response);
+    //   setServerResponse(response?.data?.message);
+    //   setServerStatus(response?.status);
+    // } catch (error) {
+    //   console.log("error while ordering item", error);
+    //   // json(error?.response?.data?.message, { status: error?.response?.status });
+    //   setServerResponse(error?.response?.data?.message);
+    //   setServerStatus(error?.response?.status);
+    // }
+    // setTimeout(() => {
+    //   setServerResponse("");
+    //   setLoader(false);
+    // }, 2000);
   };
 
   return (
@@ -114,14 +92,12 @@ export default function Cart() {
           </p>
         </div>
         <div className={classes.cartContainer}></div>
-        {finalCartItems.length > 0 ? (
-          finalCartItems.map((item) => (
-            <CartGridTIle key={item._id} {...item} />
-          ))
+        {product?.length > 0 ? (
+          product.map((item) => <CartGridTIle key={item._id} {...item} />)
         ) : (
           <h2 className={classes.title}>No items left in your cart</h2>
         )}
-        {finalCartItems.length > 0 && (
+        {product?.length > 0 && (
           <>
             <hr style={hrStyle} />
             <button
@@ -145,61 +121,146 @@ export async function loader({ request, params }) {
     return redirect("/login");
   }
   try {
-    const URI = process.env.REACT_APP_BACKEND_URI + "cart";
-    const response = await axios.get(URI, {
+    const URI = process.env.REACT_APP_BACKEND_URI + "graphql";
+    const query = `
+        query postCartItems($userId : String) {
+          postCartItems(userId : $userId){
+            product {
+              _id
+              title
+              imageUrl
+              price
+              description
+              qty
+            }
+          }
+        }
+    `;
+    const graphqlQuery = {
+      query,
+      variables: {
+        userId: userToken,
+      },
+    };
+    const response = await axios.post(URI, graphqlQuery, {
       headers: {
-        "Content-Type": "applcation/json",
-        userid: userToken,
         Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
       },
     });
-    const URI2 = process.env.REACT_APP_BACKEND_URI + "products";
-    const response2 = await axios.get(URI2, {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
-      },
-    });
-    if (response.data) {
-      return { cart: response.data, allProducts: response2?.data };
-    } else {
-      throw json("No cart fetched", {
-        status: response.status,
-        statusText: response.statusText,
+    console.log("RESPONSE IN CART", response.data);
+    const { errors, data } = response.data;
+    if (errors) {
+      let errorMessage = "";
+      errors.map((item) => {
+        errorMessage += "-> " + item.message;
       });
+      return {
+        message: errorMessage,
+        status: 400,
+        product: [],
+      };
     }
+    return { product: data.postCartItems.product };
+
+    //REST APIs
+
+    // const response = await axios.get(URI, {
+    //   headers: {
+    //     "Content-Type": "applcation/json",
+    //     userid: userToken,
+    //     Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+    //   },
+    // });
+    // const URI2 = process.env.REACT_APP_BACKEND_URI + "products";
+    // const response2 = await axios.get(URI2, {
+    //   headers: {
+    //     Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+    //   },
+    // });
+    // if (response.data) {
+    //   return { cart: response.data, allProducts: response2?.data };
+    // } else {
+    //   throw json("No cart fetched", {
+    //     status: response.status,
+    //     statusText: response.statusText,
+    //   });
+    // }
   } catch (error) {
-    throw json(error.message, {
-      status: error.status,
-      statusText: error.statusText,
+    console.log("ERROR IN AXIOS CART LOADER", error);
+    throw json(error?.response?.data?.message, {
+      status: error?.response?.status,
+      statusText: error?.response?.statusText,
     });
   }
 }
 
 export async function action({ request, params }) {
+  const userToken = localStorage.getItem("PU:TOKEN");
+  if (!userToken) {
+    return redirect("/login");
+  }
   if (request.method === "DELETE") {
     const formData = await request.formData();
     const prodId = formData.get("prodId");
+    console.log("PROD ID", prodId);
     try {
-      const URI = process.env.REACT_APP_BACKEND_URI + `delete-cart/${prodId}`;
-      const response = await axios.delete(URI, {
+      const URI = process.env.REACT_APP_BACKEND_URI + `graphql`;
+      const query = `
+      mutation postAddCart($input : postAddCartForm) {
+        postAddCart(input : $input){
+          message
+          status
+        }
+      }
+    `;
+      const graphqlQuery = {
+        query,
+        variables: {
+          input: {
+            userId: localStorage.getItem("PU:TOKEN"),
+            prodId: prodId,
+          },
+        },
+      };
+      const response = await axios.post(URI, graphqlQuery, {
         headers: {
-          userid: localStorage.getItem("PU:TOKEN") || "",
           Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
         },
       });
-      console.log("response in delete cart", response.data);
-      return { message: response.data.message, status: response.status };
+
+      console.log("DELETE CART RESPONSE DATA", response.data);
+      // const { errors, data } = response.data;
+      // if (errors) {
+      //   let errorMessage = "";
+      //   errors?.map((item) => {
+      //     errorMessage += "-> " + item.message;
+      //   });
+      //   return {
+      //     message: errorMessage,
+      //     status: 400,
+      //   };
+      // }
+      return {
+        message: "data.postDeleteCart.message",
+        status: 200,
+      };
+
+      //REST APIs
+
+      // const response = await axios.delete(URI, {
+      //   headers: {
+      //     userid: localStorage.getItem("PU:TOKEN") || "",
+      //     Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+      //   },
+      // });
+      // console.log("response in delete cart", response.data);
+      // return { message: response.data.message, status: response.status };
     } catch (error) {
-      throw json(error.response.data.message, {
-        status: error.response.status,
-        statusText: error.response.statusText,
+      throw json(error?.response?.data?.message, {
+        status: error?.response?.status,
+        statusText: error?.response?.statusText,
       });
     }
-  } else if (request.method === "POST") {
-    const form = await request.formData();
-    const formData = Object.fromEntries(form);
-    console.log("FORM DATA", formData);
-    return "hello";
   }
 }
 
