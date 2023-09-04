@@ -122,6 +122,9 @@ export async function loader({ request, params }) {
       });
       const { errors, data } = response.data;
       if (errors) {
+        if (errors[0].message === "User not Authorized!") {
+          return redirect("/login");
+        }
         let errorMessage = "";
         errors.map((item) => {
           errorMessage += "-> " + item.message;
@@ -141,6 +144,10 @@ export async function loader({ request, params }) {
       }
     } catch (error) {
       console.log("Axios error", error);
+      //this condition is only for checking is the jwt token got expired or not
+      if (error?.response?.data?.errors[0].message === "User not Authorized!") {
+        return redirect("/login");
+      }
       throw json(error.response.data.message, {
         status: error.response.status,
         statusText: error.response.statusText,

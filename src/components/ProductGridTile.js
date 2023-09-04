@@ -1,4 +1,4 @@
-import { Link, useLoaderData } from "react-router-dom";
+import { Link, redirect, useLoaderData } from "react-router-dom";
 import classes from "../styles/central.module.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -47,6 +47,9 @@ export default function ProductGridTile({
       console.log("RESPONSE IN ADD CART", response.data);
       const { errors, data } = response.data;
       if (errors) {
+        if (errors[0].message === "User not Authorized!") {
+          return redirect("/login");
+        }
         console.log("ERRORS OBJECT IN RESPONSE", errors);
         let errorMessage = "";
         errors.map((item) => {
@@ -60,6 +63,10 @@ export default function ProductGridTile({
         setServerStatus(data.postAddCart.status);
       }
     } catch (error) {
+      //this condition is only for checking is the jwt token got expired or not
+      if (error?.response?.data?.errors[0].message === "User not Authorized!") {
+        return redirect("/login");
+      }
       setServerResponse(error?.response?.data?.message || "Some Axios Error");
       setServerStatus(error?.response?.status || 400);
       console.log("ERROR IN CATCH BLOCK ", error);

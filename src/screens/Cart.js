@@ -17,61 +17,79 @@ import Toaster from "../components/Toaster";
 export default function Cart() {
   const [serverResponse, setServerResponse] = useState("");
   const [serverStatus, setServerStatus] = useState("");
-  // const [cartItems, setCartItems] = useState([]);
+  const [cartProduct, setCartProduct] = useState();
   const actionData = useActionData();
   const { message, status, product } = useLoaderData();
   const [loader, setLoader] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (product.length > 0) {
+      setCartProduct(product);
+    }
+  }, [product]);
 
   if (message && status) {
     setServerResponse(message);
     setServerStatus(status);
   }
 
-  console.log("CART LOADER DATA", product);
-
-  const cartQty = product?.reduce((curr, acc) => {
+  //evaluate total items in cart
+  const cartQty = cartProduct?.reduce((curr, acc) => {
     return curr + +acc.qty;
   }, 0);
 
-  console.log("CART QTY", cartQty);
-
-  const totalPrice = product?.reduce((curr, acc) => {
+  //evaluate total sum of items in cart
+  const totalPrice = cartProduct?.reduce((curr, acc) => {
     return (curr += +(+acc.price * acc.qty));
   }, 0);
 
-  console.log("TOTAL PRICE", totalPrice);
-
+  //place order
   const orderHandler = async () => {
     // submit({ prodId: "abcdefg" }, { method: "POST" });
-    // setLoader(true);
-    // console.log("final order items", cartItems);
-    // const modifiedCart = cartItems?.map((item) => {
+    setLoader(true);
+    // console.log("final order items", cartProduct);
+    // const modifiedCart = cartProduct?.map((item) => {
     //   return { ...item, ...finalCartItems.find((i) => item.prodId === i._id) };
     // });
-    // console.log("final cart items", modifiedCart);
-    // try {
-    //   const URI = process.env.REACT_APP_BACKEND_URI + "post-order";
-    //   const response = await axios.post(URI, modifiedCart, {
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //       userid: localStorage.getItem("PU:TOKEN"),
-    //       Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
-    //     },
-    //   });
-    //   console.log("response on post order", response);
-    //   setServerResponse(response?.data?.message);
-    //   setServerStatus(response?.status);
-    // } catch (error) {
-    //   console.log("error while ordering item", error);
-    //   // json(error?.response?.data?.message, { status: error?.response?.status });
-    //   setServerResponse(error?.response?.data?.message);
-    //   setServerStatus(error?.response?.status);
-    // }
-    // setTimeout(() => {
-    //   setServerResponse("");
-    //   setLoader(false);
-    // }, 2000);
+    console.log("final cart items", cartProduct);
+    try {
+      const mutation = `
+      mutation postOrder($input : postOrderForm) {
+          postOrder(input : $input) {
+            message
+            status
+          }
+      }`;
+      const graphqlMutation = {
+        mutation,
+        variables: {
+          input: cartProduct,
+        },
+      };
+
+      const URI = process.env.REACT_APP_BACKEND_URI + "graphql";
+      const response = await axios.post(URI, graphqlMutation);
+      // const response = await axios.post(URI, modifiedCart, {
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     userid: localStorage.getItem("PU:TOKEN"),
+      //     Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+      //   },
+      // });
+      console.log("response on post order", response.data);
+      setServerResponse("response?.data?.message");
+      setServerStatus(response?.status || 200);
+    } catch (error) {
+      console.log("error while ordering item", error);
+      // json(error?.response?.data?.message, { status: error?.response?.status });
+      setServerResponse("error?.response?.data?.message");
+      setServerStatus(error?.response?.status || 400);
+    }
+    setTimeout(() => {
+      setServerResponse("");
+      setLoader(false);
+    }, 2000);
   };
 
   return (
@@ -92,12 +110,12 @@ export default function Cart() {
           </p>
         </div>
         <div className={classes.cartContainer}></div>
-        {product?.length > 0 ? (
-          product.map((item) => <CartGridTIle key={item._id} {...item} />)
+        {cartProduct?.length > 0 ? (
+          cartProduct.map((item) => <CartGridTIle key={item._id} {...item} />)
         ) : (
           <h2 className={classes.title}>No items left in your cart</h2>
         )}
-        {product?.length > 0 && (
+        {cartProduct?.length > 0 && (
           <>
             <hr style={hrStyle} />
             <button
@@ -150,6 +168,9 @@ export async function loader({ request, params }) {
     console.log("RESPONSE IN CART", response.data);
     const { errors, data } = response.data;
     if (errors) {
+      if (errors[0].message === "User not Authorized!") {
+        return redirect("/login");
+      }
       let errorMessage = "";
       errors.map((item) => {
         errorMessage += "-> " + item.message;
@@ -187,6 +208,12 @@ export async function loader({ request, params }) {
     // }
   } catch (error) {
     console.log("ERROR IN AXIOS CART LOADER", error);
+
+    //this condition is only for checking is the jwt token got expired or not
+    if (error?.response?.data?.errors[0].message === "User not Authorized!") {
+      return redirect("/login");
+    }
+
     throw json(error?.response?.data?.message, {
       status: error?.response?.status,
       statusText: error?.response?.statusText,
@@ -206,20 +233,20 @@ export async function action({ request, params }) {
     try {
       const URI = process.env.REACT_APP_BACKEND_URI + `graphql`;
       const query = `
-      mutation postAddCart($input : postAddCartForm) {
-        postAddCart(input : $input){
-          message
-          status
+        mutation postDeleteCart($prodId : String!) {
+          postDeleteCart(prodId : $prodId){
+            message
+            status
+          }
         }
-      }
     `;
       const graphqlQuery = {
         query,
         variables: {
-          input: {
-            userId: localStorage.getItem("PU:TOKEN"),
-            prodId: prodId,
-          },
+          // input: {
+          ///userId: localStorage.getItem("PU:TOKEN"),
+          prodId: prodId,
+          // },
         },
       };
       const response = await axios.post(URI, graphqlQuery, {

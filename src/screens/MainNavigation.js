@@ -38,9 +38,9 @@ export default function MainNavigation() {
           </li>
         </nav>
         {navigation.state === "submitting" ? (
-          <LoadingScreen fallbackText={"processing..."} />
+          <LoadingScreen fallbackText={"Processing..."} />
         ) : navigation.state === "loading" ? (
-          <LoadingScreen fallbackText={"loading..."} />
+          <LoadingScreen fallbackText={"Loading..."} />
         ) : (
           <Outlet />
         )}
