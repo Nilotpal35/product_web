@@ -34,6 +34,8 @@ export default function Cart() {
     setServerStatus(status);
   }
 
+  console.log("MESSAGE STATUS", actionData);
+
   //evaluate total items in cart
   const cartQty = cartProduct?.reduce((curr, acc) => {
     return curr + +acc.qty;
@@ -44,60 +46,71 @@ export default function Cart() {
     return (curr += +(+acc.price * acc.qty));
   }, 0);
 
-  //place order
+  //below func will place all cart item order
   const orderHandler = async () => {
-    // submit({ prodId: "abcdefg" }, { method: "POST" });
     setLoader(true);
-    // console.log("final order items", cartProduct);
-    // const modifiedCart = cartProduct?.map((item) => {
-    //   return { ...item, ...finalCartItems.find((i) => item.prodId === i._id) };
-    // });
     console.log("final cart items", cartProduct);
+
     try {
-      const mutation = `
-      mutation postOrder($input : postOrderForm) {
-          postOrder(input : $input) {
+      const URI = process.env.REACT_APP_BACKEND_URI + `graphql`;
+      const query = `
+      mutation postOrder($prodId: postOrderForm!) {
+          postOrder(input : $prodId) {
             message
-            status
           }
       }`;
       const graphqlMutation = {
-        mutation,
+        query,
         variables: {
-          input: cartProduct,
+          prodId: {
+            product: cartProduct.length > 0 && cartProduct,
+          },
         },
       };
+      const response = await axios.post(URI, graphqlMutation, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+        },
+      });
 
-      const URI = process.env.REACT_APP_BACKEND_URI + "graphql";
-      const response = await axios.post(URI, graphqlMutation);
-      // const response = await axios.post(URI, modifiedCart, {
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     userid: localStorage.getItem("PU:TOKEN"),
-      //     Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
-      //   },
-      // });
       console.log("response on post order", response.data);
-      setServerResponse("response?.data?.message");
-      setServerStatus(response?.status || 200);
+      const { errors, data } = response.data;
+      if (errors) {
+        if (errors[0].message === "User not Authorized!") {
+          return redirect("/login");
+        }
+        let errorMessage = "";
+        errors.map((item) => {
+          errorMessage += "-> " + item.message;
+        });
+        setServerResponse(errorMessage);
+        setServerStatus(400);
+      } else {
+        setServerResponse(data.postOrder.message);
+        setServerStatus(response.status);
+        return setTimeout(() => {
+          navigate("/admin/order");
+        }, 2000);
+      }
     } catch (error) {
       console.log("error while ordering item", error);
-      // json(error?.response?.data?.message, { status: error?.response?.status });
-      setServerResponse("error?.response?.data?.message");
-      setServerStatus(error?.response?.status || 400);
+      // throw json(error?.response?.data?.message, { status: error?.response?.status });
+      setServerResponse(error?.response?.data?.message + "" || "Backend Error");
+      setServerStatus(error?.response?.status || 500);
     }
+
     setTimeout(() => {
       setServerResponse("");
       setLoader(false);
-    }, 2000);
+    }, 3000);
   };
 
   return (
     <>
-      {serverResponse.trim().length > 0 && (
+      {serverResponse?.trim().length > 0 && (
         <Toaster
-          message={actionData?.message || serverResponse}
-          status={actionData?.status || serverStatus}
+          message={actionData?.actionMessage || serverResponse}
+          status={actionData?.actionStatus || serverStatus}
         />
       )}
       <div className={classes.main_div}>
@@ -256,20 +269,20 @@ export async function action({ request, params }) {
       });
 
       console.log("DELETE CART RESPONSE DATA", response.data);
-      // const { errors, data } = response.data;
-      // if (errors) {
-      //   let errorMessage = "";
-      //   errors?.map((item) => {
-      //     errorMessage += "-> " + item.message;
-      //   });
-      //   return {
-      //     message: errorMessage,
-      //     status: 400,
-      //   };
-      // }
+      const { errors, data } = response.data;
+      if (errors) {
+        let errorMessage = "";
+        errors?.map((item) => {
+          errorMessage += "-> " + item.message;
+        });
+        return {
+          actionMessage: errorMessage,
+          actionStatus: 400,
+        };
+      }
       return {
-        message: "data.postDeleteCart.message",
-        status: 200,
+        actionMessage: data.postDeleteCart.message,
+        actionStatus: 200,
       };
 
       //REST APIs
