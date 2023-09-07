@@ -38,16 +38,51 @@ export async function loader({ request, params }) {
   if (!userToken) {
     return redirect("/login");
   }
-  const URI = process.env.REACT_APP_BACKEND_URI + "get-order";
   try {
-    const response = await axios.get(URI, {
+    const URI = process.env.REACT_APP_BACKEND_URI + "graphql";
+
+    //graphQL implementation
+    const query = `
+      query getAllOrders($page : Int) {
+        getAllOrders(page : $page) {
+          message
+          orderItems{
+            orderAt 
+            items {
+              _id 
+              title
+              imageUrl
+            }
+          }
+        }
+      }
+    `;
+    const graphqlQuery = {
+      query,
+      variables: {
+        page: 1,
+      },
+    };
+
+    const response = await axios.post(URI, graphqlQuery, {
       headers: {
-        userid: userToken,
         Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
       },
     });
-    console.log("RESPONSE IN ORDER", response?.data);
-    return response?.data;
+
+    //REST APIs
+    // const response = await axios.get(URI, {
+    //   headers: {
+    //     userid: userToken,
+    //     Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+    //   },
+    // });
+    console.log("RESPONSE IN ORDER", response.data);
+    const { errors, data } = response.data;
+    return {
+      message: data.getAllOrders?.message,
+      orderItems: data.getAllOrders?.orderItems,
+    };
   } catch (error) {
     throw json(error.response.data.message, { status: error.response.status });
   }

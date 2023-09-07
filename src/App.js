@@ -13,7 +13,7 @@ import Order, { loader as getOrderLoader } from "./screens/Order";
 import MainNavigation from "./screens/MainNavigation";
 import Home from "./screens/Home";
 import EditProduct, {
-  // loader as EditProductLoader,
+  loader as editProductLoader,
   action as EditFormAction,
 } from "./screens/EditProduct";
 import LoginPage, { action as LoginAction } from "./screens/LoginPage";
@@ -43,6 +43,7 @@ const router = createBrowserRouter([
       {
         path: "edit-product",
         element: <EditProduct />,
+        loader : editProductLoader,
         action: formAction,
       },
       {

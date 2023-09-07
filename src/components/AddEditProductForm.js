@@ -124,38 +124,57 @@ export async function action({ request, params }) {
   const form = await request.formData();
   const formData = Object.fromEntries(form);
 
-  console.log("Edit product FORM DATA IN ACTION", formData);
+  console.log("FORM DATA", formData);
 
-  const uri =
-    process.env.REACT_APP_BACKEND_URI +
-    (formData._id ? "admin/edit-product" : "admin/add-product");
-  console.log("URI", uri);
+  const GRAPHQL_URI = process.env.REACT_APP_BACKEND_URI + "graphql";
+
+  const REST_URI = process.env.REACT_APP_BACKEND_URI + "upload-image";
 
   try {
-    const response = await axios.post(uri, formData, {
+    const file_upload_response = await axios.post(REST_URI, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
-        Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+        //Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
       },
     });
-    console.log("RESPONSE DATA", response?.data);
-    //await new Promise((res) => setTimeout(res, 1000));
-    return {
-      message: response.data?.message,
-      status: response.status,
-      statusText: response.statusText,
-    };
+    console.log("response in add edit cart form", file_upload_response.data);
   } catch (error) {
-    if (error?.response) {
-      return {
-        message: error?.response?.data?.message,
-        status: error?.response?.status,
-        statusText: error?.response?.statusText,
-      };
-    } else {
-      throw json(error?.message, { status: 400 });
-    }
+    console.log("error in add edit form", error);
   }
 
-  // return "hello";
+  // const uri =
+  //   process.env.REACT_APP_BACKEND_URI +
+  //   (formData._id ? "admin/edit-product" : "admin/add-product");
+  // console.log("URI", uri);
+
+  // try {
+  //   const response = await axios.post(uri, formData, {
+  //     headers: {
+  //       "Content-Type": "multipart/form-data",
+  //       Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+  //     },
+  //   });
+  //   console.log("RESPONSE DATA", response?.data);
+  //   //await new Promise((res) => setTimeout(res, 1000));
+  //   return {
+  //     message: response.data?.message,
+  //     status: response.status,
+  //     statusText: response.statusText,
+  //   };
+  // } catch (error) {
+  //   if (error?.response) {
+  //     return {
+  //       message: error?.response?.data?.message,
+  //       status: error?.response?.status,
+  //       statusText: error?.response?.statusText,
+  //     };
+  //   } else {
+  //     throw json(error?.message, { status: 400 });
+  //   }
+  // }
+
+  return {
+    message: "demo message",
+    status: 400,
+  };
 }
