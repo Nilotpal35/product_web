@@ -24,7 +24,7 @@ export default function Searchbar() {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:8080/searchResult?searchText=${searchText}`
+        `${process.env.REACT_APP_BACKEND_URI}?searchText=${searchText}`
       );
       if (response.data && response.data.searchResult.length > 0) {
         setSearchResult(response.data.searchResult);
