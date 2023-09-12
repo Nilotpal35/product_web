@@ -4,17 +4,36 @@ import {
   json,
   redirect,
   useActionData,
+  useNavigate,
   useNavigation,
 } from "react-router-dom";
 import LoadingScreen from "./LodingScreen";
 import axios from "axios";
+import Toaster from "./Toaster";
+import { useEffect, useState } from "react";
+import { greenSignals } from "../util/Signal";
 
-export default function AddEditProductForm({ formData, setFormData, action }) {
-  console.log("Action", action);
+export default function AddEditProductForm({ product, method }) {
+  const [formData, setFormData] = useState({
+    _id: product?._id || "",
+    title: product?.title || "",
+    price: product?.price || "",
+    imageUrl: "",
+    description: product?.description || "",
+  });
+
   const actionData = useActionData();
-  console.log("Action data", actionData);
-
   const navigation = useNavigation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (actionData && greenSignals.includes(actionData?.status)) {
+      setTimeout(() => {
+        navigate("/admin/product");
+      }, 1000);
+    }
+  }, [actionData]);
+
   const titleValidation = formData?.title.length > 4;
   const descriptionValidation = formData.description.length > 5;
   const priceValidation = formData.price > 5 && formData.price < 99999;
@@ -24,13 +43,16 @@ export default function AddEditProductForm({ formData, setFormData, action }) {
 
   return (
     <>
+      {actionData && (
+        <Toaster message={actionData?.message} status={actionData?.status} />
+      )}
       {navigation.state === "submitting" ? (
         <LoadingScreen fallbackText={"Submitting"} />
       ) : (
         <div className={classes.main_div}>
           <Form
             className={classes.form}
-            method="POST"
+            method={method}
             encType="multipart/form-data"
           >
             <input type="hidden" name="_id" value={formData?._id || ""} />
@@ -124,22 +146,71 @@ export async function action({ request, params }) {
   const form = await request.formData();
   const formData = Object.fromEntries(form);
 
-  console.log("FORM DATA", formData);
-
   const GRAPHQL_URI = process.env.REACT_APP_BACKEND_URI + "graphql";
-
   const REST_URI = process.env.REACT_APP_BACKEND_URI + "upload-image";
 
   try {
-    const file_upload_response = await axios.post(REST_URI, formData, {
+    const file_upload_response = await axios.post(
+      REST_URI,
+      { imageUrl: formData.imageUrl },
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+        },
+      }
+    );
+    console.log("response in add edit cart form", file_upload_response.data);
+    const query = `
+      mutation createUpdateProduct($method : String!,$input : createUpdateProductData!){
+        createUpdateProduct(method : $method,input : $input){
+          message
+          status
+        }
+      }
+    `;
+    const graphqlMutation = {
+      query,
+      variables: {
+        method: request.method || "",
+        input: {
+          _id: formData._id || "",
+          title: formData.title,
+          imageUrl: file_upload_response.data?.filename || "",
+          price: formData.price,
+          description: formData.description,
+        },
+      },
+    };
+    const formUpload_response = await axios.post(GRAPHQL_URI, graphqlMutation, {
       headers: {
-        "Content-Type": "multipart/form-data",
-        //Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
       },
     });
-    console.log("response in add edit cart form", file_upload_response.data);
+    console.log("graphql  response ", formUpload_response.data);
+    const { errors, data } = formUpload_response.data;
+    if (errors) {
+      return {
+        message: errors.join(","),
+        status: 400,
+      };
+    }
+    return {
+      message: data.createUpdateProduct.message || "Successfull",
+      status: data.createUpdateProduct.status || 201,
+    };
+    // }
   } catch (error) {
-    console.log("error in add edit form", error);
+    console.log("errors in add edit product", error);
+    throw json(
+      error.response.data.errors[0].message ||
+        error.response.data.message ||
+        "error in addEdit form",
+      {
+        status: error?.response?.status || 404,
+      }
+    );
   }
 
   // const uri =
@@ -173,8 +244,8 @@ export async function action({ request, params }) {
   //   }
   // }
 
-  return {
-    message: "demo message",
-    status: 400,
-  };
+  // return {
+  //   message: "demo message",
+  //   status: 400,
+  // };
 }

@@ -4,7 +4,7 @@ export default function LoadingScreen({ fallbackText }) {
   return (
     <div className={classes.loaderMain}>
       <div className={classes.loader}></div>
-      <p>{fallbackText || "wait bro..."}</p>
+      <p style={{color : "black"}}>{fallbackText || "wait bro..."}</p>
     </div>
   );
 }

@@ -4,12 +4,17 @@ import { styles } from "./MainNavigation";
 
 export default function ErrorPage() {
   const error = useRouteError();
-  console.log("error on JSON", error);
+  console.log("error on JSON", error.data, error.status);
   return (
     <>
       <div className="App">
         {localStorage.getItem("PU:TOKEN") ? (
           <nav className="App-header">
+            <li>
+              <NavLink to={"/admin/product"} style={styles}>
+                Add Product
+              </NavLink>
+            </li>
             <li>
               <NavLink to={"/admin/product"} style={styles}>
                 Product
@@ -47,7 +52,7 @@ export default function ErrorPage() {
         <h2 style={{ ...textStyle, fontSize: "2rem" }}>Oops...</h2>
         {/* <div className={classes.error_main}> */}
         <div style={mainStyle}>
-          <p style={textStyle}>{error.status}</p>
+          <p style={textStyle}>{error?.status}</p>
           <hr style={{ height: "30px" }} />
           <p style={textStyle}>{error?.data}</p>
         </div>

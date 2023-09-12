@@ -1,96 +1,15 @@
-import {
-  redirect,
-  useActionData,
-  useLoaderData,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { redirect, useLoaderData } from "react-router-dom";
 import AddEditProductForm from "../components/AddEditProductForm";
-import { useEffect, useState } from "react";
 import classes from "../styles/central.module.css";
-import { useSelector } from "react-redux";
 import axios from "axios";
-import { greenSignals, redSignals } from "../util/Signal";
 
 export default function EditProduct() {
-  const [flag, setFlag] = useState(false);
-
-  const actionData = useActionData();
-  const location = useLocation();
-  // const searchparams = new URLSearchParams(location.search);
-  // const prodId = searchparams.get("prodId");
-  const navigate = useNavigate();
   const loaderData = useLoaderData();
-  // console.log("product detail", loaderData);
-
-  useEffect(() => {
-    if (actionData && actionData?.status === 201) {
-      setTimeout(() => {
-        navigate("/admin/product");
-      }, 1000);
-    } else if (actionData && redSignals.includes(actionData?.status)) {
-      setFlag(true);
-      setTimeout(() => {
-        setFlag(false);
-      }, 2000);
-    }
-  }, [actionData]);
-
-  useEffect(() => {
-    if (loaderData && loaderData?.status) {
-      setFlag(true);
-      setTimeout(() => {
-        setFlag(false);
-      }, 2000);
-    }
-
-    return () => {
-      setFlag(false);
-    };
-  }, [loaderData]);
-
-  const [formData, setFormData] = useState({
-    _id: loaderData?.product?._id || "",
-    title: loaderData?.product?.title || "",
-    price: loaderData?.product?.price || "",
-    imageUrl: "",
-    description: loaderData?.product?.description || "",
-  });
-
-  const props = {
-    formData: formData,
-    setFormData: setFormData,
-    action: `admin/edit-product`,
-  };
 
   return (
     <>
-      {actionData && flag && (
-        <h2
-          className={classes.title}
-          style={
-            greenSignals.includes(actionData?.status)
-              ? { color: "green" }
-              : { color: "red" }
-          }
-        >
-          {actionData?.message}
-        </h2>
-      )}
-      {loaderData && !actionData && flag && (
-        <h2
-          className={classes.title}
-          style={
-            greenSignals.includes(loaderData.status)
-              ? { color: "green" }
-              : { color: "red" }
-          }
-        >
-          {loaderData?.message}
-        </h2>
-      )}
       <h2 className={classes.title}>Edit Product</h2>
-      <AddEditProductForm {...props} />
+      <AddEditProductForm product={loaderData?.product} method="PATCH" />
     </>
   );
 }
@@ -152,6 +71,4 @@ export async function loader({ request, params }) {
       status: error?.response?.status || 500,
     };
   }
-
-  // return "hello";
 }

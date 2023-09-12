@@ -1,9 +1,9 @@
 import { Outlet, NavLink, useNavigation } from "react-router-dom";
 import "../App.css";
 import classes from "../styles/central.module.css";
-import LoadingScreen from "../components/LodingScreen";
 
 export default function MainNavigation() {
+  
   const navigation = useNavigation();
   console.log("loading state in main navigation", navigation.state);
 
@@ -37,13 +37,13 @@ export default function MainNavigation() {
             </NavLink>
           </li>
         </nav>
-        {navigation.state === "submitting" ? (
+        {/* {navigation.state === "submitting" ? (
           <LoadingScreen fallbackText={"Processing..."} />
         ) : navigation.state === "loading" ? (
           <LoadingScreen fallbackText={"Loading..."} />
-        ) : (
-          <Outlet />
-        )}
+        ) : ( */}
+        <Outlet />
+        {/* )} */}
       </div>
       <footer className={classes.main_footer}>
         &copy; 2023 Nilotpal &reg; MIT License

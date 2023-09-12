@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import classes from "../styles/central.module.css";
+import { checkServerStatus } from "../util/Signal";
 
 export default function Login() {
+
   return (
     <div
       className={[classes.main_div]}
@@ -11,7 +13,7 @@ export default function Login() {
         alignItems: "center",
       }}
     >
-      <h2 className={classes.title}>Login page</h2>
+      <h2 className={classes.title}>Welcome!</h2>
       <div style={{ display: "flex", flexDirection: "row" }}>
         <Link
           to={"login"}

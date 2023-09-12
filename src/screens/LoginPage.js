@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import LoginForm from "../components/LoginForm";
 import { greenSignals } from "../util/Signal";
+import Toaster from "../components/Toaster";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -41,17 +42,8 @@ export default function LoginPage() {
 
   return (
     <>
-      {actionData && (
-        <h2
-          className={classes.title}
-          style={
-            greenSignals.includes(actionData.status)
-              ? { color: "green" }
-              : { color: "red" }
-          }
-        >
-          {actionData.message}
-        </h2>
+      {actionData && actionData.message && (
+        <Toaster message={actionData?.message} status={actionData?.status} />
       )}
       <div className={classes.main_div_login}>
         <h2 className={classes.title}>Login Page</h2>

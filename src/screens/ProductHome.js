@@ -1,19 +1,29 @@
-import ProductGridTile from "../components/ProductGridTile";
+import React from "react";
 import classes from "../styles/central.module.css";
 import axios from "axios";
 import {
+  Await,
   // Link,
   NavLink,
+  defer,
   json,
   redirect,
   useLoaderData,
   useLocation,
+  useNavigation,
   // useNavigate,
 } from "react-router-dom";
-// import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-// import { addProduct } from "../store/redux/productStore";
 import Toaster from "../components/Toaster";
+import LoadingScreen from "../components/LodingScreen";
+import { SuspenceComponent } from "../App";
+import Searchbar from "../components/SearchBar";
+
+const ProductGridTile = React.lazy(() =>
+  import("../components/ProductGridTile")
+);
+
+const AsyncError = React.lazy(() => import("../components/AsyncError"));
 
 const ProductHome = () => {
   const [serverResponse, setServerResponse] = useState("");
@@ -22,11 +32,10 @@ const ProductHome = () => {
   const location = useLocation();
   const searchparams = new URLSearchParams(location.search);
   const page = searchparams.get("page");
-  console.log("page no => ", page, loaderData);
-  // const navigate = useNavigate();
+  const navigation = useNavigation();
 
   useEffect(() => {
-    if (loaderData?.message) {
+    if (loaderData?.response?.message) {
       setServerResponse(loaderData?.message);
       setServerStatus(loaderData?.status);
     }
@@ -46,39 +55,57 @@ const ProductHome = () => {
       {serverResponse.trim().length > 0 && (
         <Toaster message={serverResponse} status={serverStatus} />
       )}
+      <Searchbar />
       <div className={classes.main_div}>
         <div className={classes.container}>
-          {/* <h2>This is product page</h2> */}
-          {loaderData?.products &&
-            loaderData?.products?.map((item) => (
-              <ProductGridTile
-                key={item._id}
-                _id={item._id}
-                title={item.title}
-                price={item.price}
-                description={item.description}
-                imageUrl={item.imageUrl}
-                serverResponse={serverResponse}
-                setServerResponse={setServerResponse}
-                serverStatus={serverStatus}
-                setServerStatus={setServerStatus}
-              />
-            ))}
+          {navigation.state === "loading" ? (
+            <LoadingScreen fallbackText={"Loading products..."} />
+          ) : (
+            SuspenceComponent(
+              <Await
+                resolve={loaderData.response}
+                errorElement={<AsyncError />}
+              >
+                {(resolvedProducts) =>
+                  resolvedProducts?.products?.map((item) => (
+                    <ProductGridTile
+                      key={item._id}
+                      _id={item._id}
+                      title={item.title}
+                      price={item.price}
+                      description={item.description}
+                      imageUrl={item.imageUrl}
+                      serverResponse={serverResponse}
+                      setServerResponse={setServerResponse}
+                      serverStatus={serverStatus}
+                      setServerStatus={setServerStatus}
+                    />
+                  ))
+                }
+              </Await>
+            )
+          )}
         </div>
         <div style={{ position: "absolute", bottom: "100px" }}>
-          {loaderData?.totalPages?.map((item) => (
-            <NavLink
-              to={`/admin/product?page=${item}`}
-              style={{
-                backgroundColor: page == item ? "purple" : "grey",
-                color: page == item ? "white" : "black",
-                fontSize: "1rem",
-                padding: "1rem",
-              }}
-            >
-              {item}
-            </NavLink>
-          ))}
+          {SuspenceComponent(
+            <Await resolve={loaderData.response} errorElement={<AsyncError />}>
+              {(resolvedPages) =>
+                resolvedPages.totalPages?.map((item) => (
+                  <NavLink
+                    to={`/admin/product?page=${item}`}
+                    style={{
+                      backgroundColor: page == item ? "purple" : "grey",
+                      color: page == item ? "white" : "black",
+                      fontSize: "1rem",
+                      padding: "1rem",
+                    }}
+                  >
+                    {item}
+                  </NavLink>
+                ))
+              }
+            </Await>
+          )}
         </div>
       </div>
     </>
@@ -87,7 +114,7 @@ const ProductHome = () => {
 
 export default ProductHome;
 
-export async function loader({ request, params }) {
+export async function loadProduct({ request, params }) {
   const userToken = localStorage.getItem("PU:TOKEN");
   if (!userToken) {
     return redirect("/login");
@@ -122,7 +149,7 @@ export async function loader({ request, params }) {
       });
       const { errors, data } = response.data;
       if (errors) {
-        if (errors[0].message === "User not Authorized!") {
+        if (errors[0].message === "User not Authorized") {
           return redirect("/login");
         }
         let errorMessage = "";
@@ -145,7 +172,7 @@ export async function loader({ request, params }) {
     } catch (error) {
       console.log("Axios error", error);
       //this condition is only for checking is the jwt token got expired or not
-      if (error?.response?.data?.errors[0].message === "User not Authorized!") {
+      if (error?.response?.data?.errors[0].message == "User not Authorized") {
         return redirect("/login");
       }
       throw json(error.response.data.message, {
@@ -154,4 +181,10 @@ export async function loader({ request, params }) {
       });
     }
   }
+}
+
+export async function loader({ request, params }) {
+  return defer({
+    response: loadProduct({ request, params }),
+  });
 }

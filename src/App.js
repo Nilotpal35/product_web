@@ -1,71 +1,116 @@
+import React from "react";
 import styled from "styled-components";
 import { createBrowserRouter, json, RouterProvider } from "react-router-dom";
-import ProductHome, { loader as productLoader } from "./screens/ProductHome";
-import Login from "./screens/Login";
-import ErrorPage from "./screens/Error";
-import AddProduct, { loader as addProductLoader } from "./screens/AddProduct";
-import Cart, {
-  loader as cartLoader,
-  action as cartAction,
-} from "./screens/Cart";
-import Order, { loader as getOrderLoader } from "./screens/Order";
+import { loader as productLoader } from "./screens/ProductHome";
+// import Login from "./screens/Login";
+// import ErrorPage from "./screens/Error";
+import { loader as addProductLoader } from "./screens/AddProduct";
+import { loader as cartLoader, action as cartAction } from "./screens/Cart";
+import { loader as getOrderLoader } from "./screens/Order";
 // import ProductDetail, { loader as DetailLoader } from "./screens/ProductDetail";
-import MainNavigation from "./screens/MainNavigation";
-import Home from "./screens/Home";
-import EditProduct, {
-  loader as editProductLoader,
-  action as EditFormAction,
-} from "./screens/EditProduct";
-import LoginPage, { action as LoginAction } from "./screens/LoginPage";
+// import MainNavigation from "./screens/MainNavigation";
+// import Home from "./screens/Home";
+import { loader as editProductLoader } from "./screens/EditProduct";
+import { action as LoginAction } from "./screens/LoginPage";
 import { action as formAction } from "./components/AddEditProductForm";
-import SignUpPage, { action as signUpAction } from "./screens/SignUpPage";
-import LogOut from "./screens/Logout";
+import { action as signUpAction } from "./screens/SignUpPage";
+// import LogOut from "./screens/Logout";
+
+const ProductHome = React.lazy(() => import("./screens/ProductHome"));
+
+const MainNavigation = React.lazy(() => import("./screens/MainNavigation"));
+
+const LoginPage = React.lazy(() => import("./screens/LoginPage"));
+
+const LogOut = React.lazy(() => import("./screens/Logout"));
+
+const SignUpPage = React.lazy(() => import("./screens/SignUpPage"));
+
+const EditProduct = React.lazy(() => import("./screens/EditProduct"));
+
+const Home = React.lazy(() => import("./screens/Home"));
+
+const Order = React.lazy(() => import("./screens/Order"));
+
+const Cart = React.lazy(() => import("./screens/Cart"));
+
+const AddProduct = React.lazy(() => import("./screens/AddProduct"));
+
+const ErrorPage = React.lazy(() => import("./screens/Error"));
+
+const Login = React.lazy(() => import("./screens/Login"));
+
+export function SuspenceComponent(component, fallback) {
+  return (
+    <React.Suspense
+      fallback={
+        <p style={{ color: "black" }}>
+          <i>{fallback || "Loading..."}</i>
+        </p>
+      }
+    >
+      {component}
+    </React.Suspense>
+  );
+}
 
 const router = createBrowserRouter([
   {
     path: "/admin",
-    errorElement: <ErrorPage />,
-    element: <MainNavigation />,
+    errorElement: SuspenceComponent(<ErrorPage />),
+    element: SuspenceComponent(<MainNavigation />),
     children: [
-      { index: true, element: <Home /> },
+      { index: true, element: SuspenceComponent(<Home />) },
       {
         path: "product",
-        element: <ProductHome />,
-        loader: productLoader,
+        element: SuspenceComponent(<ProductHome />),
+        loader: (meta) => productLoader(meta),
       },
       {
         path: "add-product",
-        element: <AddProduct />,
-        action: formAction,
-        loader: addProductLoader,
+        element: SuspenceComponent(<AddProduct />),
+        action: (meta) => formAction(meta),
+        loader: (meta) => addProductLoader(meta),
       },
 
       {
         path: "edit-product",
-        element: <EditProduct />,
-        loader : editProductLoader,
-        action: formAction,
+        element: SuspenceComponent(<EditProduct />),
+        loader: (meta) => editProductLoader(meta),
+        action: (meta) => formAction(meta),
       },
       {
         path: "cart",
-        element: <Cart />,
-        loader: cartLoader,
-        action: cartAction,
+        element: SuspenceComponent(<Cart />),
+        loader: (meta) => cartLoader(meta),
+        action: (meta) => cartAction(meta),
       },
-      { path: "order", element: <Order />, loader: getOrderLoader },
+      {
+        path: "order",
+        element: SuspenceComponent(<Order />),
+        loader: (meta) => getOrderLoader(meta),
+      },
     ],
   },
   {
     path: "/",
-    errorElement: <ErrorPage />,
+    errorElement: SuspenceComponent(<ErrorPage />),
     children: [
       {
         index: true,
-        element: <Login />,
+        element: SuspenceComponent(<Login />),
       },
-      { path: "login", element: <LoginPage />, action: LoginAction },
-      { path: "signUp", element: <SignUpPage />, action: signUpAction },
-      { path: "logout", element: <LogOut /> },
+      {
+        path: "login",
+        element: SuspenceComponent(<LoginPage />),
+        action: (meta) => LoginAction(meta),
+      },
+      {
+        path: "signUp",
+        element: SuspenceComponent(<SignUpPage />),
+        action: (meta) => signUpAction(meta),
+      },
+      { path: "logout", element: SuspenceComponent(<LogOut />) },
     ],
   },
 ]);

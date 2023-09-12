@@ -17,17 +17,17 @@ import Toaster from "../components/Toaster";
 export default function Cart() {
   const [serverResponse, setServerResponse] = useState("");
   const [serverStatus, setServerStatus] = useState("");
-  const [cartProduct, setCartProduct] = useState();
+  // const [cartProduct, setCartProduct] = useState();
   const actionData = useActionData();
   const { message, status, product } = useLoaderData();
   const [loader, setLoader] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (product.length > 0) {
-      setCartProduct(product);
-    }
-  }, [product]);
+  // useEffect(() => {
+  //   if (product.length > 0) {
+  //     setCartProduct(product);
+  //   }
+  // }, [product]);
 
   if (message && status) {
     setServerResponse(message);
@@ -37,19 +37,19 @@ export default function Cart() {
   console.log("MESSAGE STATUS", actionData);
 
   //evaluate total items in cart
-  const cartQty = cartProduct?.reduce((curr, acc) => {
+  const cartQty = product&& product?.reduce((curr, acc) => {
     return curr + +acc.qty;
   }, 0);
 
   //evaluate total sum of items in cart
-  const totalPrice = cartProduct?.reduce((curr, acc) => {
+  const totalPrice = product && product?.reduce((curr, acc) => {
     return (curr += +(+acc.price * acc.qty));
   }, 0);
 
   //below func will place all cart item order
   const orderHandler = async () => {
     setLoader(true);
-    console.log("final cart items", cartProduct);
+    console.log("final cart items", product && product);
 
     try {
       const URI = process.env.REACT_APP_BACKEND_URI + `graphql`;
@@ -63,7 +63,7 @@ export default function Cart() {
         query,
         variables: {
           prodId: {
-            product: cartProduct.length > 0 && cartProduct,
+            product: product.length > 0 && product,
           },
         },
       };
@@ -116,19 +116,19 @@ export default function Cart() {
       <div className={classes.main_div}>
         <div className={classes.cartHeader}>
           <p style={{ fontSize: "1rem", fontWeight: "600" }}>
-            Total Items - {cartQty}
+            Total Items - {cartQty || 0}
           </p>
           <p style={{ fontSize: "1.2rem", fontWeight: "600" }}>
-            $ {totalPrice}
+            $ {totalPrice || 0}
           </p>
         </div>
         <div className={classes.cartContainer}></div>
-        {cartProduct?.length > 0 ? (
-          cartProduct.map((item) => <CartGridTIle key={item._id} {...item} />)
+        {product&& product?.length > 0 ? (
+          product&& product.map((item) => <CartGridTIle key={item._id} {...item} />)
         ) : (
           <h2 className={classes.title}>No items left in your cart</h2>
         )}
-        {cartProduct?.length > 0 && (
+        {product&& product?.length > 0 && (
           <>
             <hr style={hrStyle} />
             <button
