@@ -1,5 +1,7 @@
 import {
+  Await,
   Link,
+  defer,
   json,
   redirect,
   useActionData,
@@ -11,17 +13,25 @@ import classes from "../styles/central.module.css";
 import axios from "axios";
 import CartGridTIle from "../components/CartGridTile";
 import { greenSignals, redSignals } from "../util/Signal";
-import { useEffect, useState } from "react";
+import { Profiler, useEffect, useState } from "react";
 import Toaster from "../components/Toaster";
+import { SuspenceComponent } from "../App";
+import AsyncError from "../components/AsyncError";
+import CartPage from "../components/CartPage";
+import { onRenderCallBack } from "../util/onRenderCallback";
 
 export default function Cart() {
-  const [serverResponse, setServerResponse] = useState("");
-  const [serverStatus, setServerStatus] = useState("");
+  // const [serverResponse, setServerResponse] = useState("");
+  // const [serverStatus, setServerStatus] = useState("");
   // const [cartProduct, setCartProduct] = useState();
+  // const [product, setProduct] = useState([]);
+  // const [message, setMessage] = useState("");
+  // const [status, setStatus] = useState();
   const actionData = useActionData();
-  const { message, status, product } = useLoaderData();
+  // const { message, status, product } = useLoaderData();
   const [loader, setLoader] = useState(false);
   const navigate = useNavigate();
+  const loaderData = useLoaderData();
 
   // useEffect(() => {
   //   if (product.length > 0) {
@@ -29,91 +39,92 @@ export default function Cart() {
   //   }
   // }, [product]);
 
-  if (message && status) {
-    setServerResponse(message);
-    setServerStatus(status);
-  }
+  // if (message && status) {
+  //   setServerResponse(message);
+  //   setServerStatus(status);
+  // }
 
-  console.log("MESSAGE STATUS", actionData);
+  // console.log("MESSAGE STATUS", actionData);
 
   //evaluate total items in cart
-  const cartQty = product&& product?.reduce((curr, acc) => {
-    return curr + +acc.qty;
-  }, 0);
+  // const cartQty =
+  //   product &&
+  //   product?.reduce((curr, acc) => {
+  //     return curr + +acc.qty;
+  //   }, 0);
 
   //evaluate total sum of items in cart
-  const totalPrice = product && product?.reduce((curr, acc) => {
-    return (curr += +(+acc.price * acc.qty));
-  }, 0);
+  // const totalPrice =
+  //   product &&
+  //   product?.reduce((curr, acc) => {
+  //     return (curr += +(+acc.price * acc.qty));
+  //   }, 0);
 
   //below func will place all cart item order
-  const orderHandler = async () => {
-    setLoader(true);
-    console.log("final cart items", product && product);
-
-    try {
-      const URI = process.env.REACT_APP_BACKEND_URI + `graphql`;
-      const query = `
-      mutation postOrder($prodId: postOrderForm!) {
-          postOrder(input : $prodId) {
-            message
-          }
-      }`;
-      const graphqlMutation = {
-        query,
-        variables: {
-          prodId: {
-            product: product.length > 0 && product,
-          },
-        },
-      };
-      const response = await axios.post(URI, graphqlMutation, {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
-        },
-      });
-
-      console.log("response on post order", response.data);
-      const { errors, data } = response.data;
-      if (errors) {
-        if (errors[0].message === "User not Authorized!") {
-          return redirect("/login");
-        }
-        let errorMessage = "";
-        errors.map((item) => {
-          errorMessage += "-> " + item.message;
-        });
-        setServerResponse(errorMessage);
-        setServerStatus(400);
-      } else {
-        setServerResponse(data.postOrder.message);
-        setServerStatus(response.status);
-        return setTimeout(() => {
-          navigate("/admin/order");
-        }, 2000);
-      }
-    } catch (error) {
-      console.log("error while ordering item", error);
-      // throw json(error?.response?.data?.message, { status: error?.response?.status });
-      setServerResponse(error?.response?.data?.message + "" || "Backend Error");
-      setServerStatus(error?.response?.status || 500);
-    }
-
-    setTimeout(() => {
-      setServerResponse("");
-      setLoader(false);
-    }, 3000);
+  const orderHandler = () => {
+    // setLoader(true);
+    // console.log("final cart items", product && product);
+    // try {
+    //   const URI = process.env.REACT_APP_BACKEND_URI + `graphql`;
+    //   const query = `
+    //   mutation postOrder($prodId: postOrderForm!) {
+    //       postOrder(input : $prodId) {
+    //         message
+    //       }
+    //   }`;
+    //   const graphqlMutation = {
+    //     query,
+    //     variables: {
+    //       prodId: {
+    //         product: product.length > 0 && product,
+    //       },
+    //     },
+    //   };
+    //   const response = await axios.post(URI, graphqlMutation, {
+    //     headers: {
+    //       Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
+    //     },
+    //   });
+    //   console.log("response on post order", response.data);
+    //   const { errors, data } = response.data;
+    //   if (errors) {
+    //     if (errors[0].message === "User not Authorized!") {
+    //       return redirect("/login");
+    //     }
+    //     let errorMessage = "";
+    //     errors.map((item) => {
+    //       errorMessage += "-> " + item.message;
+    //     });
+    //     setServerResponse(errorMessage);
+    //     setServerStatus(400);
+    //   } else {
+    //     setServerResponse(data.postOrder.message);
+    //     setServerStatus(response.status);
+    //     return setTimeout(() => {
+    //       navigate("/admin/order");
+    //     }, 2000);
+    //   }
+    // } catch (error) {
+    //   console.log("error while ordering item", error);
+    //   // throw json(error?.response?.data?.message, { status: error?.response?.status });
+    //   setServerResponse(error?.response?.data?.message + "" || "Backend Error");
+    //   setServerStatus(error?.response?.status || 500);
+    // }
+    // setTimeout(() => {
+    //   setServerResponse("");
+    //   setLoader(false);
+    // }, 3000);
   };
 
   return (
     <>
-      {serverResponse?.trim().length > 0 && (
+      {actionData && (
         <Toaster
-          message={actionData?.actionMessage || serverResponse}
-          status={actionData?.actionStatus || serverStatus}
+          message={actionData?.actionMessage}
+          status={actionData?.actionStatus}
         />
       )}
-      <div className={classes.main_div}>
+      {/* <div className={classes.main_div}>
         <div className={classes.cartHeader}>
           <p style={{ fontSize: "1rem", fontWeight: "600" }}>
             Total Items - {cartQty || 0}
@@ -121,14 +132,23 @@ export default function Cart() {
           <p style={{ fontSize: "1.2rem", fontWeight: "600" }}>
             $ {totalPrice || 0}
           </p>
-        </div>
-        <div className={classes.cartContainer}></div>
-        {product&& product?.length > 0 ? (
-          product&& product.map((item) => <CartGridTIle key={item._id} {...item} />)
+        </div> */}
+      <div className={classes.cartContainer}>
+        {SuspenceComponent(
+          <Await resolve={loaderData.carts} errorElement={<AsyncError />}>
+            {(resolvedCart) => <CartPage {...resolvedCart} />}
+          </Await>
+        )}
+        {/* {product && product?.length > 0 ? (
+          product &&
+          product.map((item) => <CartGridTIle key={item._id} {...item} />)
         ) : (
           <h2 className={classes.title}>No items left in your cart</h2>
+        )} */}
+        {/* {product.length === 0 && (
+          <h2 className={classes.title}>No items left in your cart</h2>
         )}
-        {product&& product?.length > 0 && (
+        {product && product?.length > 0 && (
           <>
             <hr style={hrStyle} />
             <button
@@ -139,14 +159,14 @@ export default function Cart() {
               {loader ? "Ordering..." : "Order Now"}
             </button>
           </>
-        )}
+        )} */}
       </div>
       {/* <p>Cart page</p> */}
     </>
   );
 }
 
-export async function loader({ request, params }) {
+export async function cartLoader({ request, params }) {
   const userToken = localStorage.getItem("PU:TOKEN");
   if (!userToken) {
     return redirect("/login");
@@ -232,6 +252,12 @@ export async function loader({ request, params }) {
       statusText: error?.response?.statusText,
     });
   }
+}
+
+export async function loader({ request, params }) {
+  return defer({
+    carts: cartLoader({ request, params }),
+  });
 }
 
 export async function action({ request, params }) {

@@ -1,8 +1,8 @@
 import axios from "axios";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, memo } from "react";
 import LoadingScreen from "./LodingScreen";
 
-export default function Searchbar() {
+function Searchbar() {
   const [loading, setLoading] = useState(false);
   const [searchResult, setSearchResult] = useState([]);
   // const [searchText, setSearchText] = useState("");
@@ -24,7 +24,7 @@ export default function Searchbar() {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URI}?searchText=${searchText}`
+        `${process.env.REACT_APP_BACKEND_URI}searchResult?searchText=${searchText}`
       );
       if (response.data && response.data.searchResult.length > 0) {
         setSearchResult(response.data.searchResult);
@@ -133,3 +133,5 @@ export default function Searchbar() {
     </div>
   );
 }
+
+export default memo(Searchbar);

@@ -1,9 +1,14 @@
-import { json, redirect, useLoaderData } from "react-router-dom";
+import { Await, defer, json, redirect, useLoaderData } from "react-router-dom";
 import classes from "../styles/central.module.css";
-import axios from "axios";
-import OrderGridTile from "../components/OrderGridTile";
-import { useEffect } from "react";
+import axios, { all } from "axios";
+// import OrderGridTile from "../components/OrderGridTile";
+import React, { useEffect } from "react";
+import { SuspenceComponent } from "../App";
+import OrderPage from "../components/OrderPage";
+import { onRenderCallBack } from "../util/onRenderCallback";
 // import { useEffect } from "react";
+
+const OrderGridTile = React.lazy(() => import("../components/OrderGridTile"));
 
 export default function Order() {
   //navigate the page into particular position
@@ -12,28 +17,50 @@ export default function Order() {
   //   targetElement.scrollIntoView({ behavior: "smooth" });
   // }, []);
 
-  const { message, orderItems } = useLoaderData();
+  const loaderData = useLoaderData();
 
-  orderItems?.sort((a, b) => {
-    return new Date(b.orderAt).getTime() > new Date(a.orderAt).getTime()
-      ? 1
-      : -1;
-  });
+  // const allPr = await Promise.allSettled([loaderData.order]);
+
+  // const finalData = allPr.map((item) => item.value);
+
+  // console.log("promise", finalData[0].message , finalData[0].orderItems );
+
+  // orderItems?.sort((a, b) => {
+  //   return new Date(b.orderAt).getTime() > new Date(a.orderAt).getTime()
+  //     ? 1
+  //     : -1;
+  // });
 
   return (
     <>
       <div className={classes.main_div}>
-        <h2 className={classes.title}>Order Page</h2>
-        {orderItems?.map((item) => (
+        {/* <h2 className={classes.title}>Order Page</h2> */}
+        {SuspenceComponent(
+          <Await resolve={loaderData.order}>
+            {(resolvedOrders) => <OrderPage {...resolvedOrders} />}
+            {/* {(resolvedItems) => {
+              resolvedItems.orderItems.sort((a, b) => {
+                return new Date(b.orderAt).getTime() >
+                  new Date(a.orderAt).getTime()
+                  ? 1
+                  : -1;
+              });
+              return resolvedItems.orderItems?.map((item) => (
+                <OrderGridTile key={item.orderAt} {...item} />
+              ));
+            }} */}
+          </Await>
+        )}
+        {/* {orderItems?.map((item) => (
           <OrderGridTile key={item.orderAt} {...item} />
-        ))}
+        ))} */}
       </div>
       <div id="bottom"></div>
     </>
   );
 }
 
-export async function loader({ request, params }) {
+export async function orderLoader({ request, params }) {
   const userToken = localStorage.getItem("PU:TOKEN");
   if (!userToken) {
     return redirect("/login");
@@ -86,4 +113,10 @@ export async function loader({ request, params }) {
   } catch (error) {
     throw json(error.response.data.message, { status: error.response.status });
   }
+}
+
+export async function loader({ request, params }) {
+  return defer({
+    order: orderLoader({ request, params }),
+  });
 }

@@ -1,10 +1,11 @@
+import React from "react";
 import { Link, redirect, useLoaderData } from "react-router-dom";
 import classes from "../styles/central.module.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Modal from "./Modal";
+const Modal = React.lazy(() => import("./Modal"));
 
-export default function ProductGridTile({
+export default React.memo(function ProductGridTile({
   _id,
   title,
   price,
@@ -15,6 +16,7 @@ export default function ProductGridTile({
   serverStatus,
   setServerStatus,
 }) {
+  console.log("INSIDE PRODUCT GRID TILE");
   const [showModal, setShowModal] = useState(false);
 
   const URI = process.env.REACT_APP_BACKEND_URI + "graphql";
@@ -131,4 +133,4 @@ export default function ProductGridTile({
       </div>
     </>
   );
-}
+});

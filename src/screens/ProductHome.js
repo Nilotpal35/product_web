@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import classes from "../styles/central.module.css";
 import axios from "axios";
 import {
@@ -18,6 +18,7 @@ import Toaster from "../components/Toaster";
 import LoadingScreen from "../components/LodingScreen";
 import { SuspenceComponent } from "../App";
 import Searchbar from "../components/SearchBar";
+import ProductPage from "../components/ProductPage";
 
 const ProductGridTile = React.lazy(() =>
   import("../components/ProductGridTile")
@@ -34,21 +35,14 @@ const ProductHome = () => {
   const page = searchparams.get("page");
   const navigation = useNavigation();
 
-  useEffect(() => {
-    if (loaderData?.response?.message) {
-      setServerResponse(loaderData?.message);
-      setServerStatus(loaderData?.status);
-    }
-  }, [loaderData]);
-
-  useEffect(() => {
-    if (serverResponse.trim().length > 0) {
-      setTimeout(() => {
-        setServerResponse("");
-        setServerStatus(null);
-      }, 2000);
-    }
-  }, [serverResponse]);
+  // useEffect(() => {
+  //   if (serverResponse.trim().length > 0) {
+  //     setTimeout(() => {
+  //       setServerResponse("");
+  //       setServerStatus(null);
+  //     }, 2000);
+  //   }
+  // }, [serverResponse]);
 
   return (
     <>
@@ -56,58 +50,13 @@ const ProductHome = () => {
         <Toaster message={serverResponse} status={serverStatus} />
       )}
       <Searchbar />
-      <div className={classes.main_div}>
-        <div className={classes.container}>
-          {navigation.state === "loading" ? (
-            <LoadingScreen fallbackText={"Loading products..."} />
-          ) : (
-            SuspenceComponent(
-              <Await
-                resolve={loaderData.response}
-                errorElement={<AsyncError />}
-              >
-                {(resolvedProducts) =>
-                  resolvedProducts?.products?.map((item) => (
-                    <ProductGridTile
-                      key={item._id}
-                      _id={item._id}
-                      title={item.title}
-                      price={item.price}
-                      description={item.description}
-                      imageUrl={item.imageUrl}
-                      serverResponse={serverResponse}
-                      setServerResponse={setServerResponse}
-                      serverStatus={serverStatus}
-                      setServerStatus={setServerStatus}
-                    />
-                  ))
-                }
-              </Await>
-            )
-          )}
-        </div>
-        <div style={{ position: "absolute", bottom: "100px" }}>
-          {SuspenceComponent(
-            <Await resolve={loaderData.response} errorElement={<AsyncError />}>
-              {(resolvedPages) =>
-                resolvedPages.totalPages?.map((item) => (
-                  <NavLink
-                    to={`/admin/product?page=${item}`}
-                    style={{
-                      backgroundColor: page == item ? "purple" : "grey",
-                      color: page == item ? "white" : "black",
-                      fontSize: "1rem",
-                      padding: "1rem",
-                    }}
-                  >
-                    {item}
-                  </NavLink>
-                ))
-              }
-            </Await>
-          )}
-        </div>
-      </div>
+      <>
+        {SuspenceComponent(
+          <Await resolve={loaderData.response} errorElement={<AsyncError />}>
+            {(resolvedProducts) => <ProductPage {...resolvedProducts} />}
+          </Await>
+        )}
+      </>
     </>
   );
 };
@@ -172,13 +121,14 @@ export async function loadProduct({ request, params }) {
     } catch (error) {
       console.log("Axios error", error);
       //this condition is only for checking is the jwt token got expired or not
-      if (error?.response?.data?.errors[0].message == "User not Authorized") {
-        return redirect("/login");
+      if (error?.response?.data?.errors[0].message === "User not Authorized") {
+        console.log("isnide axios error");
+        throw json(error.response.data.message, {
+          status: error.response.status,
+          statusText: error.response.statusText,
+        });
       }
-      throw json(error.response.data.message, {
-        status: error.response.status,
-        statusText: error.response.statusText,
-      });
+      // return { message: error?.response?.data?.errors[0].message };
     }
   }
 }

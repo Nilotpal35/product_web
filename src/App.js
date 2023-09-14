@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Profiler } from "react";
 import styled from "styled-components";
 import { createBrowserRouter, json, RouterProvider } from "react-router-dom";
 import { loader as productLoader } from "./screens/ProductHome";
@@ -14,6 +14,7 @@ import { loader as editProductLoader } from "./screens/EditProduct";
 import { action as LoginAction } from "./screens/LoginPage";
 import { action as formAction } from "./components/AddEditProductForm";
 import { action as signUpAction } from "./screens/SignUpPage";
+import { onRenderCallBack } from "./util/onRenderCallback";
 // import LogOut from "./screens/Logout";
 
 const ProductHome = React.lazy(() => import("./screens/ProductHome"));
@@ -63,7 +64,11 @@ const router = createBrowserRouter([
       { index: true, element: SuspenceComponent(<Home />) },
       {
         path: "product",
-        element: SuspenceComponent(<ProductHome />),
+        element: SuspenceComponent(
+          <React.Profiler id="Profile" onRender={onRenderCallBack}>
+            <ProductHome />
+          </React.Profiler>
+        ),
         loader: (meta) => productLoader(meta),
       },
       {

@@ -1,4 +1,6 @@
+import React from "react";
 import classes from "../styles/central.module.css";
+
 export default function OrderGridTile({ orderAt, items }) {
   const eachCart = ({ title, imageUrl }) => {
     return (
