@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import classes from "../styles/central.module.css";
-import { checkServerStatus } from "../util/Signal";
+import { getAuthToken } from "../util/auth";
 
 export default function Login() {
-
+  const token = getAuthToken();
+  console.log("TOKEN", token);
   return (
     <div
       className={[classes.main_div]}

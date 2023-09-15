@@ -61,10 +61,6 @@ export default function Order() {
 }
 
 export async function orderLoader({ request, params }) {
-  const userToken = localStorage.getItem("PU:TOKEN");
-  if (!userToken) {
-    return redirect("/login");
-  }
   try {
     const URI = process.env.REACT_APP_BACKEND_URI + "graphql";
 

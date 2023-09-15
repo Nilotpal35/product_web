@@ -1,49 +1,48 @@
-import { Outlet, NavLink, useNavigation } from "react-router-dom";
+import { Outlet, NavLink, useLoaderData } from "react-router-dom";
 import "../App.css";
 import classes from "../styles/central.module.css";
 
 export default function MainNavigation() {
-  
-  const navigation = useNavigation();
-  console.log("loading state in main navigation", navigation.state);
-
+  const loaderData = useLoaderData();
+  console.log("INSIDE MAIN NAVIGATION", loaderData);
   return (
     <>
       <div className="App">
         <nav className="App-header">
-          <li>
-            <NavLink to={"add-product"} style={styles}>
-              Add Product
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to={"product"} style={styles}>
-              Product
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to={"cart"} style={styles}>
-              Cart
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to={"order"} style={styles}>
-              Order
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to={"/logout"} style={styles}>
-              Logout
-            </NavLink>
-          </li>
+          <>
+            <li>
+              <NavLink to={"add-product"} style={styles}>
+                Add Product
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={"product"} style={styles}>
+                Product
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={"cart"} style={styles}>
+                Cart
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={"order"} style={styles}>
+                Order
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={"/logout"} style={styles}>
+                Logout
+              </NavLink>
+            </li>
+          </>
+          <div style={{ position: "absolute", right: "50px" }}>
+            <li>
+              <p>{loaderData?.name.toUpperCase()}</p>
+            </li>
+          </div>
         </nav>
-        {/* {navigation.state === "submitting" ? (
-          <LoadingScreen fallbackText={"Processing..."} />
-        ) : navigation.state === "loading" ? (
-          <LoadingScreen fallbackText={"Loading..."} />
-        ) : ( */}
         <Outlet />
-        {/* )} */}
       </div>
       <footer className={classes.main_footer}>
         &copy; 2023 Nilotpal &reg; MIT License

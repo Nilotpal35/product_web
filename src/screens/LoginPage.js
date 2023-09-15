@@ -96,6 +96,7 @@ export async function action({ request, params }) {
         response?.data?.data?.postLogin;
       console.log("response data", response?.data?.data?.postLogin);
       localStorage.setItem("JWT:TOKEN", token);
+      localStorage.setItem("expiration", Date.now() + 1 * 60 * 60 * 1000);
       localStorage.setItem("PU:TOKEN", userToken);
       localStorage.setItem("PU:USER", userName);
       return {
@@ -118,30 +119,4 @@ export async function action({ request, params }) {
       statusText: error?.response?.statusText,
     };
   }
-  // try {
-  //   const response = await axios.post(uri, formData, {
-  //     method: request.method,
-  //   });
-  //   console.log("RESPONSE FROM LOGIN ", response.data);
-  //   localStorage.setItem("PU:TOKEN", response.data?.userToken);
-  //   localStorage.setItem("JWT:TOKEN", response.data?.token);
-  //   localStorage.setItem("PU:USER", response.data?.userName);
-
-  //   await new Promise((res) => setTimeout(res, 1000));
-  //   return {
-  //     message: response.data?.message,
-  //     status: response.status,
-  //     statusText: response.statusText,
-  //   };
-  // } catch (error) {
-  //   if (error?.response) {
-  //     return {
-  //       message: error?.response?.data?.message && "wrong email or password!",
-  //       status: error?.response?.status,
-  //       statusText: error?.response?.statusText,
-  //     };
-  //   } else {
-  //     throw json(error?.message, { status: 400 });
-  //   }
-  // }
 }

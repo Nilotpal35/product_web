@@ -15,12 +15,7 @@ export default function EditProduct() {
 }
 
 export async function loader({ request, params }) {
-  const userToken = localStorage.getItem("PU:TOKEN");
-  if (!userToken) {
-    return redirect("/login");
-  }
   const prodId = request?.url?.split("?")[1]?.split("=")[1];
-
   const query = `
     query getSingleProductById($prodId : String!) {
       getSingleProductById(prodId : $prodId) {

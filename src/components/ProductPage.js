@@ -1,37 +1,64 @@
-import React from "react";
-import { NavLink, redirect } from "react-router-dom";
+import React, { useCallback, useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import classes from "../styles/central.module.css";
 import ProductGridTile from "./ProductGridTile";
+import Toaster from "./Toaster";
+
 export default React.memo(function ProductPage(props) {
-  console.log("INSIDE PRODUCT PAGE", props);
-  if (props.message) {
-    return redirect("/login");
-  }
+  const [serverResponse, setServerResponse] = useState("");
+  const [serverStatus, setServerStatus] = useState(null);
+  const location = useLocation();
+  const searchparams = new URLSearchParams(location.search);
+  const page = searchparams.get("page");
+
+  console.log("INSIDE PRODUCT PAGE", page);
+
+  const setToaster = useCallback(
+    function ({ message, status }) {
+      console.log("ARGS", message);
+      setServerResponse(message);
+      setServerStatus(status);
+      setTimeout(() => {
+        setServerResponse("");
+        setServerStatus("");
+      }, 2000);
+    },
+    [setServerResponse, setServerStatus]
+  );
+
   return (
-    <div className={classes.main_div}>
-      {/* <h2>Inside Product Page</h2> */}
-      <div className={classes.container}>
-        {props &&
-          props?.products.map((item) => (
-            <ProductGridTile key={item._id} {...item} />
-          ))}
+    <>
+      {serverResponse.trim().length > 0 && (
+        <Toaster message={serverResponse} status={serverStatus} />
+      )}
+      <div className={classes.main_div}>
+        <div className={classes.container}>
+          {props &&
+            props?.products.map((item) => (
+              <ProductGridTile
+                key={item._id}
+                {...item}
+                setToaster={setToaster}
+              />
+            ))}
+        </div>
+        <div style={{ position: "absolute", bottom: "2.5rem" }}>
+          {props &&
+            props?.totalPages.map((item) => (
+              <NavLink
+                to={`/admin/product?page=${item}`}
+                style={{
+                  backgroundColor: page == item ? "purple" : "grey",
+                  color: page == item ? "white" : "black",
+                  fontSize: "1rem",
+                  padding: "1rem",
+                }}
+              >
+                {item}
+              </NavLink>
+            ))}
+        </div>
       </div>
-      <div style={{ position: "absolute", bottom: "2rem" }}>
-        {props &&
-          props?.totalPages.map((item) => (
-            <NavLink
-              to={`/admin/product?page=${item}`}
-              style={{
-                backgroundColor: props?.page == item ? "purple" : "grey",
-                color: props?.page == item ? "white" : "black",
-                fontSize: "1rem",
-                padding: "1rem",
-              }}
-            >
-              {item}
-            </NavLink>
-          ))}
-      </div>
-    </div>
+    </>
   );
 });

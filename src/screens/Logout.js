@@ -17,6 +17,7 @@ export default function LogOut() {
         localStorage.removeItem("PU:TOKEN");
         localStorage.removeItem("PU:USER");
         localStorage.removeItem("JWT:TOKEN");
+        localStorage.removeItem("expiration");
         console.log("Successfully logged Out");
         console.log("USER TOKEN", userToken && userToken);
         console.log("USER NAME", userName && userName);
@@ -51,7 +52,7 @@ export default function LogOut() {
             <Link
               className={[classes.button]}
               style={{ padding: "1rem" }}
-              onClick={navigate(-1)}
+              onClick={() => navigate(-1)}
             >
               Go Back
             </Link>

@@ -6,7 +6,6 @@ export default React.memo(function OrderPage({ message, orderItems }) {
   console.log("Order Items", orderItems);
   return (
     <>
-      {/* <h2>Inside order page</h2> */}
       {orderItems &&
         orderItems.map((item) => (
           <OrderGridTile key={item.orderAt} {...item} />

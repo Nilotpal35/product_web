@@ -7,8 +7,8 @@ export default function ErrorPage() {
   console.log("error on JSON", error.data, error.status);
   return (
     <>
-      <div className="App">
-        {localStorage.getItem("PU:TOKEN") ? (
+      {/* <div className="App"> */}
+        {/* {localStorage.getItem("PU:TOKEN") ? (
           <nav className="App-header">
             <li>
               <NavLink to={"/admin/product"} style={styles}>
@@ -46,8 +46,8 @@ export default function ErrorPage() {
               </NavLink>
             </li>
           </nav>
-        )}
-      </div>
+        )} */}
+      {/* </div> */}
       <div className={classes.main_div_error}>
         <h2 style={{ ...textStyle, fontSize: "2rem" }}>Oops...</h2>
         {/* <div className={classes.error_main}> */}
