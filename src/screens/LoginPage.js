@@ -1,24 +1,16 @@
-import {
-  Form,
-  Link,
-  useActionData,
-  useNavigate,
-  useNavigation,
-  json,
-} from "react-router-dom";
+import { useActionData, useNavigate, useNavigation } from "react-router-dom";
 import classes from "../styles/central.module.css";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import LoginForm from "../components/LoginForm";
 import { greenSignals } from "../util/Signal";
 import Toaster from "../components/Toaster";
+import { loginAction } from "../graphql/query";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
   const actionData = useActionData();
   const navigation = useNavigation();
   const navigate = useNavigate();
-  console.log("action data", actionData);
 
   useEffect(() => {
     if (actionData && greenSignals.includes(actionData.status)) {
@@ -56,67 +48,16 @@ export default function LoginPage() {
 export async function action({ request, params }) {
   const loginForm = await request.formData();
   const { email, password } = Object.fromEntries(loginForm);
-  const uri = process.env.REACT_APP_BACKEND_URI + "graphql";
   console.log("email password", email, password);
-  const query = `
-  query postLogin($input : postLoginForm) {
-    postLogin(input : $input) {
-    status
-    message
-    userName
-    userToken
-    token
-    }
-  }`;
-
-  const graphqlQuery = {
-    query,
-    variables: {
-      input: {
-        email,
-        password,
-      },
-    },
-  };
-  try {
-    const response = await axios.post(uri, graphqlQuery);
-    const { errors, data } = response.data;
-    if (errors) {
-      let errorMessage = "";
-      errors.map((item) => {
-        errorMessage += "-> " + item.message;
-      });
-      return {
-        message: errorMessage,
-        status: 400,
-        statusText: "error with login data",
-      };
-    } else {
-      const { status, message, userName, userToken, token } =
-        response?.data?.data?.postLogin;
-      console.log("response data", response?.data?.data?.postLogin);
-      localStorage.setItem("JWT:TOKEN", token);
-      localStorage.setItem("expiration", Date.now() + 1 * 60 * 60 * 1000);
-      localStorage.setItem("PU:TOKEN", userToken);
-      localStorage.setItem("PU:USER", userName);
-      return {
-        message: "login Successfull",
-        status: response.status,
-        statusText: response.statusText,
-      };
-    }
-  } catch (error) {
-    console.log("error in axios", error);
-    let errorMessage = "";
-    if (error?.response?.data?.errors) {
-      error?.response?.data?.errors.map((item) => {
-        errorMessage += "-> " + item.message;
-      });
-    }
-    return {
-      message: error?.response?.data?.message || errorMessage,
-      status: error?.response?.status,
-      statusText: error?.response?.statusText,
-    };
+  const { message, status, userName, userToken, token } = await loginAction({
+    email,
+    password,
+  });
+  if (greenSignals.includes(status) && token && userName && userToken) {
+    localStorage.setItem("JWT:TOKEN", token);
+    localStorage.setItem("expiration", Date.now() + 1 * 60 * 60 * 1000);
+    localStorage.setItem("PU:TOKEN", userToken);
+    localStorage.setItem("PU:USER", userName);
   }
+  return { message, status };
 }

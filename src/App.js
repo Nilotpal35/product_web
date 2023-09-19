@@ -77,11 +77,7 @@ const router = createBrowserRouter([
           { index: true, element: SuspenceComponent(<Home />) },
           {
             path: "product",
-            element: SuspenceComponent(
-              <Profiler id="profile" onRender={onRenderCallBack}>
-                <ProductHome />
-              </Profiler>
-            ),
+            element: SuspenceComponent(<ProductHome />),
             loader: (meta) => productLoader(meta),
           },
           {

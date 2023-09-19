@@ -58,7 +58,7 @@ a {
 }
 
 .main_div {
-  min-height: 82vh;
+  min-height: 85vh;
   background-color: rgb(208, 208, 208);
   color: rgb(221, 221, 221);
   display: flex;
@@ -66,7 +66,7 @@ a {
   align-items: center;
   /* justify-content: space-between; */
   /* bottom: 15; */
-  padding-bottom: 0.5rem;
+  padding-bottom: 100px;
 }
 
 .main_div_login {
@@ -156,16 +156,16 @@ button:hover {
   box-shadow: 0 0 20px rgba(0, 0, 0, 1);
 }
 .main_footer {
-  position: relative;
+  position: fixed;
   background-color: #1c736d;
-  height: 8vh;
+  height: 5vh;
   color: white;
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
-  /* width: 100%; */
-  bottom: 0;
+  width: 100%;
+  bottom: 0px;
 }
 
 .main_title {

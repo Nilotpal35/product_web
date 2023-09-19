@@ -8,6 +8,8 @@ import {
   redirect,
   useLoaderData,
   useLocation,
+  useParams,
+  useSearchParams,
 } from "react-router-dom";
 import { SuspenceComponent } from "../App";
 import Searchbar from "../components/SearchBar";

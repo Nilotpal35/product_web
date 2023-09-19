@@ -42,10 +42,12 @@ export default function MainNavigation() {
             </li>
           </div>
         </nav>
-        <Outlet />
+        <section style={{ height: "82vh" }}>
+          <Outlet />
+        </section>
       </div>
       <footer className={classes.main_footer}>
-        &copy; 2023 Nilotpal &reg; MIT License
+        &copy; 2023 Nilotpal &reg; All Rights Reserved
       </footer>
     </>
   );

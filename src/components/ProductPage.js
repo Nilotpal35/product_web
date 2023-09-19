@@ -42,7 +42,7 @@ export default React.memo(function ProductPage(props) {
               />
             ))}
         </div>
-        <div style={{ position: "absolute", bottom: "2.5rem" }}>
+        <div style={{ position: "fixed", bottom: "100px" }}>
           {props &&
             props?.totalPages.map((item) => (
               <NavLink

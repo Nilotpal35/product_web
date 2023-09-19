@@ -10,6 +10,7 @@ import axios from "axios";
 import LoginForm from "../components/LoginForm";
 import { greenSignals } from "../util/Signal";
 import SignUpForm from "../components/SignUpForm";
+import Toaster from "../components/Toaster";
 
 export default function SignUpPage() {
   const [form, setForm] = useState({
@@ -20,16 +21,18 @@ export default function SignUpPage() {
     cnfPassword: "",
   });
   const actionData = useActionData();
+  console.log("action data in signup page", actionData);
   const navigation = useNavigation();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (actionData && greenSignals.includes(actionData.status)) {
       setTimeout(() => {
+        //actionData.message = ""
         navigate("/login");
       }, 1000);
     }
-  }, [actionData]);
+  }, [actionData, navigate]);
 
   const nameValidation = form.name.trim().length > 3;
   const dobValidation =
@@ -61,16 +64,7 @@ export default function SignUpPage() {
   return (
     <>
       {actionData && (
-        <h2
-          className={classes.title}
-          style={
-            greenSignals.includes(actionData.status)
-              ? { color: "green" }
-              : { color: "red" }
-          }
-        >
-          {actionData.message}
-        </h2>
+        <Toaster message={actionData?.message} status={actionData?.status} />
       )}
       <div className={classes.main_div_login}>
         <h2 className={classes.title}>SignUp Page</h2>
@@ -84,25 +78,36 @@ export async function action({ request, params }) {
   const loginForm = await request.formData();
   const formData = Object.fromEntries(loginForm);
   console.log("SIGN UP FORM DATA", formData);
-  const uri = process.env.REACT_APP_BACKEND_URI + "signup";
+  const URI = process.env.REACT_APP_BACKEND_URI + "graphql";
+  const query = `
+    mutation postSignup($input : postSignupForm!){
+      postSignup(input : $input) {
+        message
+      }
+    }
+  `;
+  const graphqlQuery = {
+    query,
+    variables: {
+      input: formData,
+    },
+  };
   try {
-    const response = await axios.post(uri, formData, {
-      method: request.method,
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
-      },
-    });
-    console.log("RESPONSE FROM LOGIN ", response.data?.message);
-    await new Promise((res) => setTimeout(res, 1000));
+    const response = await axios.post(URI, graphqlQuery);
+    console.log("RESPONSE FROM LOGIN ", response?.data);
+    // await new Promise((res) => setTimeout(res, 1000));
+    const { data } = response.data;
     return {
-      message: response.data?.message,
+      message: data.postSignup?.message,
       status: response.status,
       statusText: response.statusText,
     };
   } catch (error) {
     if (error?.response) {
       return {
-        message: error?.response?.data?.message,
+        message:
+          error?.response?.data?.errors[0].message ||
+          error.response?.data?.message,
         status: error?.response?.status,
         statusText: error?.response?.statusText,
       };

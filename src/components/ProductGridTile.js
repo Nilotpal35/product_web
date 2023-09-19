@@ -24,7 +24,6 @@ export default React.memo(function ProductGridTile({
       authToken,
     };
     const { message, status } = await addCartItems(mutationData);
-    console.log("MESSAGE--STATUS", message, status);
     if (message && status) {
       setToaster({ message, status });
     }

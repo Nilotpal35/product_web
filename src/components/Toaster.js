@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import classes from "../styles/central.module.css";
-import { greenSignals } from "../util/Signal";
+import { greenSignals, redSignals } from "../util/Signal";
 
 export default function Toaster({ message, status }) {
   const [flag, setFlag] = useState(false);
   useEffect(() => {
     setFlag(true);
     setTimeout(() => {
-      setFlag(false);
+      greenSignals.includes(status) && setFlag(false);
     }, 2000);
-  }, [message]);
+  }, [status]);
   return (
     <>
       {flag && (
