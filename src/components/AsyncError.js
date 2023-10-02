@@ -9,9 +9,12 @@ export default function AsyncError() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        backgroundColor: "red",
+        width: "100%",
+        height:"auto"
       }}
     >
-      <p style={{ textAlign: "center" }}>
+      <p style={{ textAlign: "center",padding:"0.1rem 0"}}>
         {error?.message || "Could not able to load this page"}
       </p>
     </div>

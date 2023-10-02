@@ -1,17 +1,18 @@
 import React, { useCallback, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, redirect, useLocation, useNavigate } from "react-router-dom";
 import classes from "../styles/central.module.css";
 import ProductGridTile from "./ProductGridTile";
 import Toaster from "./Toaster";
+import { redSignals } from "../util/Signal";
 
 export default React.memo(function ProductPage(props) {
   const [serverResponse, setServerResponse] = useState("");
+  const [smessage, setMessage] = useState("");
   const [serverStatus, setServerStatus] = useState(null);
   const location = useLocation();
   const searchparams = new URLSearchParams(location.search);
   const page = searchparams.get("page");
-
-  console.log("INSIDE PRODUCT PAGE", page);
+  const navigate = useNavigate();
 
   const setToaster = useCallback(
     function ({ message, status }) {
@@ -25,6 +26,16 @@ export default React.memo(function ProductPage(props) {
     },
     [setServerResponse, setServerStatus]
   );
+
+  if (
+    props &&
+    redSignals.includes(props.statusCode) &&
+    props.statusCode === 401
+  ) {
+    // redirect the user to login page
+    console.log("redirect to login");
+    return navigate("/login");
+  }
 
   return (
     <>

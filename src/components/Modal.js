@@ -2,6 +2,7 @@ import { useRef } from "react";
 import Icons from "./Icons";
 import classes from "../styles/central.module.css";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 export default function Modal({
   _id,
@@ -15,20 +16,30 @@ export default function Modal({
 
   const closeModal = (event) => {
     if (modalRef.current && !modalRef.current.contains(event.target)) {
-      setShowModal(false)
+      setShowModal(false);
     }
   };
 
   return (
     <div style={modalStyle} onClick={closeModal}>
       <Icons btnHandler={closeModal} />
-      <div style={modalContent} ref={modalRef}>
+      <motion.div
+        variants={{
+          hidden: { y: 30, opacity: 0 },
+          visible: { y: 0, opacity: 1 },
+        }}
+        style={modalContent}
+        ref={modalRef}
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+      >
         <img src={imageUrl} className={classes.dimage} alt={title} />
         <p style={text}> {title}</p>
         <p style={text}> ${price}</p>
         <p style={text}> {description}</p>
         <Link to={`/admin/edit-product?prodId=${_id}`}>Edit</Link>
-      </div>
+      </motion.div>
     </div>
   );
 }

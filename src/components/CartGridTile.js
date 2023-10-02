@@ -3,6 +3,7 @@ import classes from "../styles/central.module.css";
 import { Link, useLoaderData, useSubmit } from "react-router-dom";
 import Modal from "./Modal";
 import CustomIcon from "./CustomIcon";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function CartGridTIle({
   _id,
@@ -37,8 +38,13 @@ export default function CartGridTIle({
 
   return (
     <>
-      {showModal && <Modal {...props} />}
-      <div className={classes.cartProducts} onClick={(e) => btnHandler(e)}>
+      <AnimatePresence>{showModal && <Modal {...props} />}</AnimatePresence>
+      <motion.div
+        className={classes.cartProducts}
+        onClick={(e) => btnHandler(e)}
+        transition={{type : "spring"}}
+        whileHover={{scale: 1.1}}
+      >
         <img
           className={classes.cartImage}
           src={process.env.REACT_APP_BACKEND_URI + "image/" + imageUrl}
@@ -50,7 +56,7 @@ export default function CartGridTIle({
         <div style={{ margin: "0.5rem" }} ref={deleteRef}>
           <CustomIcon btnHandler={() => deleteCartHandler(_id)} />
         </div>
-      </div>
+      </motion.div>
     </>
   );
 }

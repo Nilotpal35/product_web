@@ -4,6 +4,7 @@ import { useState } from "react";
 import { addCartItems } from "../graphql/mutation";
 import Modal from "./Modal";
 import { useRouteLoaderData } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default React.memo(function ProductGridTile({
   _id,
@@ -44,8 +45,12 @@ export default React.memo(function ProductGridTile({
 
   return (
     <>
-      {showModal && <Modal {...props} />}
-      <div className={classes.products}>
+      <AnimatePresence>{showModal && <Modal {...props} />}</AnimatePresence>
+      <motion.div
+        className={classes.products}
+        whileHover={{ scale: 1.05 }}
+        transition={{ type: "spring" }}
+      >
         <img
           src={process.env.REACT_APP_BACKEND_URI + "image/" + imageUrl}
           alt={title}
@@ -60,7 +65,7 @@ export default React.memo(function ProductGridTile({
             Details
           </button>
         </div>
-      </div>
+      </motion.div>
     </>
   );
 });
