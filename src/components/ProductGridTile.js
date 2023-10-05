@@ -15,11 +15,9 @@ export default React.memo(function ProductGridTile({
   setToaster,
 }) {
   const authToken = useRouteLoaderData("root");
-  console.log("INSIDE PRODUCT GRID TILE");
   const [showModal, setShowModal] = useState(false);
 
   const addCartHandler = async () => {
-    console.log("add cart handler button clicked");
     const mutationData = {
       prodId: _id,
       authToken,

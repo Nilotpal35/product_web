@@ -1,62 +1,49 @@
-import axios from "axios";
-import { useEffect, useState, useCallback, memo } from "react";
-import LoadingScreen from "./LodingScreen";
+import { useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchSearchResult } from "../graphql/query";
+import classes from "../styles/central.module.css";
+import Modal from "./Modal";
 
-function Searchbar() {
-  const [loading, setLoading] = useState(false);
-  const [searchResult, setSearchResult] = useState([]);
-  // const [searchText, setSearchText] = useState("");
+function Searchbar({ showSearchBar, setShowSearchbar }) {
+  const [searchText, setSearchText] = useState("");
+  const [show, setShow] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState({});
+  const { isLoading, isError, error, data } = useQuery({
+    queryKey: ["allProducts", { searchText: searchText }],
+    queryFn: (data) =>
+      fetchSearchResult(Object.assign({}, data, { searchText })),
+    enabled: searchText !== "" && searchText !== undefined,
+  });
+  console.log("isLoading", isLoading);
+  console.log("isError", isError);
 
-  const debounce = (func) => {
-    let timer;
-    return function (...args) {
-      const context = this;
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(() => {
-        timer = null;
-        func.apply(context, args);
-      }, 500);
-    };
-  };
+  console.log("error", error?.response.data?.errors[0]);
 
-  async function fetchSearchResults(searchText) {
-    // console.log("Search text", searchText);
-    setLoading(true);
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URI}searchResult?searchText=${searchText}`
-      );
-      if (response.data && response.data.searchResult.length > 0) {
-        setSearchResult(response.data.searchResult);
-      }
-      setLoading(false);
-    } catch (err) {
-      console.log("error in searching result");
-      setLoading(false);
-    }
-    // console.log("response in search result", response.data);
-    setLoading(false);
+  console.log("data", data);
+
+  // if (data) {
+  //   setShowSearchbar(true);
+  // }
+  function clickHandler(id) {
+    const item = data && data.find((item) => item._id === id);
+    setSelectedItem(item);
+    setShowModal(!showModal);
   }
 
-  console.log("search result ----", searchResult);
-
-  // useEffect(() => {
-  //   console.log("inside use effect", searchText);
-  //   if (searchText.length > 0) {
-  //     fetchSearchResults();
-  //   } else {
-  //     setSearchResult([]);
-  //   }
-  // }, [searchText]);
-  const optimizedFunc = useCallback(debounce(fetchSearchResults), []);
-
-  const buttonHandler = () => {
-    setSearchResult([]);
-    //setSearchText("");
+  const props = {
+    setShowModal: setShowModal,
+    title: selectedItem?.title,
+    imageUrl:
+      process.env.REACT_APP_BACKEND_URI + "image/" + selectedItem?.imageUrl,
+    _id: selectedItem?._id,
+    price: selectedItem?.price,
+    description: selectedItem?.description,
   };
 
   return (
     <div style={{ width: "100%" }}>
+      {showModal && <Modal {...props} />}
       <div
         style={{
           display: "flex",
@@ -70,68 +57,64 @@ function Searchbar() {
           style={{
             display: "flex",
             flexDirection: "row",
-            // alignItems: "center",
-            // justifyContent: "center",
-            // width: "100%",
-            // height : "1rem"
             marginBottom: "0",
           }}
         >
           <input
             type="text"
-            // value={searchText}
-            // placeholder="search ..."
-            onChange={(e) => optimizedFunc(e.target.value)}
-            // onFocus={}
-            style={{
-              borderStyle: "none",
-              // borderBottom: "2px solid grey",
-              boxShadow: "0 0 10px rgba(0,0,0,0.5)",
-              // width : "100px"
-              borderRadius: "0",
-              height: "1rem",
-              width: "30vw",
-            }}
+            value={searchText}
+            placeholder="search ..."
+            onChange={(e) => setSearchText(e.target.value)}
+            style={inputStyle}
           />
         </article>
-
-        <div
-          style={{
-            // borderStyle: "none",
-            // borderBottom: "2px solid grey",
-            boxShadow: "0 0 10px rgba(0,0,0,0.5)",
-            // width : "100px"
-            borderRadius: "0",
-            // height: "1rem",
-            width: "31vw",
-            backgroundColor: "lightgray",
-            position: "fixed",
-            top: "15vh",
-            left: "61vh",
-            // width: "30vw",
-            backgroundColor: "white",
-            // border: " 1px solid #ccc",
-            borderTop: "0",
-            marginTop: "0",
-            // display: "none",
-          }}
-        >
-          {loading ? (
-            <p style={{ color: "black" }}>
-              <i>Loading...</i>
-            </p>
-          ) : (
-            searchResult &&
-            searchResult.map((item) => (
-              <li key={item._id} style={{ color: "black", listStyle: "none" }}>
-                <i>{item.title}</i>
+        {!showModal && data && (
+          <div style={searchBar}>
+            {data.map((item) => (
+              <li
+                key={item._id}
+                className={classes.searchBarItem}
+                onClick={() => clickHandler(item._id)}
+              >
+                <p>{item.title}</p>
               </li>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-export default memo(Searchbar);
+export default Searchbar;
+
+const searchBar = {
+  // borderStyle: "none",
+  // borderBottom: "2px solid grey",
+  boxShadow: "0 0 10px rgba(0,0,0,0.5)",
+  // width : "100px"
+  borderRadius: "0",
+  // height: "1rem",
+  width: "30rem",
+  // height: "30rem",
+  backgroundColor: "lightgray",
+  position: "absolute",
+  top: "10rem",
+  // left: "40rem",
+  // width: "30vw",
+  // border: " 1px solid #ccc",
+  borderTop: "0",
+  marginTop: "0",
+  // display: "none",
+  zIndex: "999",
+};
+
+const inputStyle = {
+  borderStyle: "none",
+  // borderBottom: "2px solid grey",
+  boxShadow: "0 0 10px rgba(0,0,0,0.5)",
+  // width : "100px"
+  borderRadius: "0",
+  height: "1rem",
+  width: "30vw",
+};

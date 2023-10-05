@@ -4,7 +4,7 @@ import Login from "./screens/Login";
 import LoginPage from "./screens/LoginPage";
 import Logout from "./screens/Logout";
 import { createBrowserRouter, json, RouterProvider } from "react-router-dom";
-import { loader as productLoader } from "./screens/ProductHome";
+// import { loader as productLoader } from "./screens/ProductHome";
 import { loader as addProductLoader } from "./screens/AddProduct";
 import { loader as cartLoader, action as cartAction } from "./screens/Cart";
 import { loader as getOrderLoader } from "./screens/Order";
@@ -14,6 +14,7 @@ import { action as formAction } from "./components/AddEditProductForm";
 import SignUpPage, { action as signUpAction } from "./screens/SignUpPage";
 import { onRenderCallBack } from "./util/onRenderCallback";
 import { decodeTokenLoader, getAuthToken } from "./util/auth";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const ProductHome = React.lazy(() => import("./screens/ProductHome"));
 
@@ -78,7 +79,7 @@ const router = createBrowserRouter([
           {
             path: "product",
             element: SuspenceComponent(<ProductHome />),
-            loader: (meta) => productLoader(meta),
+            // loader: (meta) => productLoader(meta),
           },
           {
             path: "add-product",
@@ -109,12 +110,13 @@ const router = createBrowserRouter([
     ],
   },
 ]);
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
-    </>
+    </QueryClientProvider>
   );
 }
 

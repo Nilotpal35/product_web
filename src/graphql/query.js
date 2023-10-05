@@ -152,35 +152,37 @@ export const getAllProducts = async (pageNo) => {
   try {
     const response = await axios.post(URI, graphqlQuery, {
       headers: {
-        Authorization: "Bearer" + localStorage.getItem("JWT:TOKEN"),
+        Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
       },
     });
     const { data } = response.data;
     const { products, totalPages } = data.postProducts;
     return { message: response.status, statusCode: 200, products, totalPages };
   } catch (error) {
-    // console.log("Axios error", error);
-    // //this condition is only for checking is the jwt token got expired or not
-    // if (error?.response?.data?.errors[0].message === "User not Authorized") {
-    //   console.log("isnide axios error");
-    //   throw json(error.response.data.message, {
-    //     status: error.response.status,
-    //     statusText: error.response.statusText,
-    //   });
-    // }
-    // return { message: error?.response?.data?.errors[0].message };
-    console.log("error in query", error);
-    return {
-      message:
-        error?.response.data.message ||
-        error?.response.data?.errors[0].message ||
-        error?.message,
-      statusCode:
-        error.response.data.errors[0].statusCode ||
-        error.response.status ||
-        400,
-      products: [],
-      totalPages: [],
-    };
+    throw error;
   }
+};
+
+export const fetchSearchResult = async ({ searchText = "" }) => {
+  console.log("searchText in query ", searchText);
+  const query = `
+    query getSearchResult($searchText : String!) {
+      getSearchResult(searchText : $searchText) {
+        _id
+        title
+        price
+        description
+        imageUrl
+      }
+    }
+  `;
+  const graphqlQuery = {
+    query,
+    variables: {
+      searchText,
+    },
+  };
+  const result = await axios.post(URI, graphqlQuery);
+  console.log("search result from backend", result);
+  return result.data.data.getSearchResult;
 };

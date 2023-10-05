@@ -2,13 +2,13 @@ import { useRouteError, NavLink } from "react-router-dom";
 import classes from "../styles/central.module.css";
 import { styles } from "./MainNavigation";
 
-export default function ErrorPage() {
+export default function ErrorPage({ text }) {
   const error = useRouteError();
-  console.log("error on JSON", error.data, error.status);
+  console.log("error on JSON", error?.data, error?.status);
   return (
     <>
       {/* <div className="App"> */}
-        {/* {localStorage.getItem("PU:TOKEN") ? (
+      {/* {localStorage.getItem("PU:TOKEN") ? (
           <nav className="App-header">
             <li>
               <NavLink to={"/admin/product"} style={styles}>
@@ -52,9 +52,9 @@ export default function ErrorPage() {
         <h2 style={{ ...textStyle, fontSize: "2rem" }}>Oops...</h2>
         {/* <div className={classes.error_main}> */}
         <div style={mainStyle}>
-          <p style={textStyle}>{error?.status}</p>
+          <p style={textStyle}>{error?.status || text?.statusCode}</p>
           <hr style={{ height: "30px" }} />
-          <p style={textStyle}>{error?.data}</p>
+          <p style={textStyle}>{error?.data || text?.message}</p>
         </div>
       </div>
       <footer className={classes.main_footer}>

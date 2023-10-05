@@ -82,7 +82,7 @@ a {
 }
 
 .main_div_error {
-  min-height: 82vh;
+  min-height: 85vh;
   background-color: rgb(33, 33, 33);
   color: rgb(235, 235, 235);
   display: flex;
@@ -430,4 +430,17 @@ button:hover {
   100% {
     transform: rotate(360deg);
   }
+}
+.searchBarItem {
+  background-color: #01132a;
+  color: #fff;
+  border-bottom: 0.5px solid rgb(164, 161, 161);
+  list-style: none;
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  font-size: 1.2rem;
+}
+
+.searchBarItem p {
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
 }
