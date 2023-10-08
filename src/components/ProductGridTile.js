@@ -5,6 +5,7 @@ import { addCartItems } from "../graphql/mutation";
 import Modal from "./Modal";
 import { useRouteLoaderData } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import {useMutation} from '@tanstack/react-query'
 
 export default React.memo(function ProductGridTile({
   _id,
@@ -17,18 +18,29 @@ export default React.memo(function ProductGridTile({
   const authToken = useRouteLoaderData("root");
   const [showModal, setShowModal] = useState(false);
 
+  const { mutate, data, isError, isPending, isSuccess, } = useMutation({
+    mutationFn : addCartItems
+  })
+
   const addCartHandler = async () => {
-    const mutationData = {
-      prodId: _id,
-      authToken,
-    };
-    const { message, status } = await addCartItems(mutationData);
-    if (message && status) {
-      setToaster({ message, status });
-    }
+    // const mutationData = {
+    //   prodId: _id,
+    //   authToken,
+    // };
+    // const { message, status } = await addCartItems(mutationData);
+    // if (message && status) {
+    //   setToaster({ message, status });
+    // }
+    mutate({prodId : _id , authToken});
+
   };
+  console.log('isError', isError)
+  console.log('isPending', isPending)
+  console.log('isSuccess', isSuccess)
+  console.log('data', data)
 
   const btnHandler = (e) => {
+    console.log('Detail view clicked')
     setShowModal(!showModal);
   };
 
@@ -57,7 +69,7 @@ export default React.memo(function ProductGridTile({
         <p className={classes.title}>{title}</p>
         <div className={classes.btnCtr}>
           <button className={classes.button} onClick={addCartHandler}>
-            Add
+            Addd
           </button>
           <button className={classes.button} onClick={btnHandler}>
             Details
