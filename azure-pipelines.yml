@@ -7,7 +7,7 @@ trigger:
 - authentication
 
 variables:
-  REACT_APP_BACKEND_URI: "https://product-api-cshabgc5ddezh6b0.centralindia-01.azurewebsites.net/"
+  # REACT_APP_BACKEND_URI: "https://product-api-cshabgc5ddezh6b0.centralindia-01.azurewebsites.net/"
 
   azureSubscription: '43f7d5e2-4b25-42df-be40-b483fd9ca6be'
   webAppName: 'product-web'
@@ -66,4 +66,6 @@ stages:
               appType: webAppLinux
               WebAppName: $(webAppName)
               packageForLinux: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
-              RuntimeStack: 'NODE|20LTS'
+              # RuntimeStack: 'NODE|20LTS'
+              appSettings: |
+                REACT_APP_BACKEND_URI $(REACT_APP_BACKEND_URI)
