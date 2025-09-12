@@ -12,7 +12,7 @@ variables:
   azureSubscription: '43f7d5e2-4b25-42df-be40-b483fd9ca6be'
 
   # Web app name
-  webAppName: 'Product web'
+  webAppName: 'product-web'
 
   # Environment name
   environmentName: 'React JS Frontend'
