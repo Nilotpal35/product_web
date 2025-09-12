@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import classes from "../styles/central.module.css";
 import axios from "axios";
 import {
@@ -44,7 +44,7 @@ export async function loadProduct({ request, params }) {
   );
   console.log("message ", message, statusCode, products, totalPages);
   if (redSignals.includes(statusCode)) {
-    console.log("red signal",statusCode);
+    console.log("red signal", statusCode);
     return { message, statusCode, products, totalPages };
   } else if (greenSignals.includes(statusCode)) {
     return { products, totalPages };

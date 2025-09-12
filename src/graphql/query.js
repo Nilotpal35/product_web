@@ -74,6 +74,7 @@ export const getAllOrders = async () => {
         Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
       },
     });
+    console.log('order -- data' , data)
     return {
       message: "order successfull",
       // errors: data.errors,
@@ -152,7 +153,7 @@ export const getAllProducts = async (pageNo) => {
   try {
     const response = await axios.post(URI, graphqlQuery, {
       headers: {
-        Authorization: "Bearer" + localStorage.getItem("JWT:TOKEN"),
+        Authorization: "Bearer " + localStorage.getItem("JWT:TOKEN"),
       },
     });
     const { data } = response.data;

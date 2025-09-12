@@ -11,7 +11,7 @@ export default React.memo(function ProductPage(props) {
   const [serverStatus, setServerStatus] = useState(null);
   const location = useLocation();
   const searchparams = new URLSearchParams(location.search);
-  const page = searchparams.get("page");
+  const page = searchparams.get("page") || 1;
   const navigate = useNavigate();
 
   const setToaster = useCallback(
