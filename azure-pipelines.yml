@@ -7,17 +7,11 @@ trigger:
 - authentication
 
 variables:
+  REACT_APP_BACKEND_URI: "https://product-api-cshabgc5ddezh6b0.centralindia-01.azurewebsites.net/"
 
-  # Azure Resource Manager connection created during pipeline creation
   azureSubscription: '43f7d5e2-4b25-42df-be40-b483fd9ca6be'
-
-  # Web app name
   webAppName: 'product-web'
-
-  # Environment name
   environmentName: 'React JS Frontend'
-
-  # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
 stages:
@@ -28,18 +22,27 @@ stages:
     displayName: Build
     pool:
       vmImage: $(vmImageName)
-
     steps:
-    - task: ArchiveFiles@2
-      displayName: 'Archive files'
+    - task: NodeTool@0
       inputs:
-        rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+        versionSpec: '20.x'
+      displayName: 'Install Node.js'
+
+    - script: |
+        npm install
+        npm run build
+      displayName: 'Install dependencies & build React app'
+
+    - task: ArchiveFiles@2
+      displayName: 'Archive build output'
+      inputs:
+        rootFolderOrFile: 'build'
         includeRootFolder: false
         archiveType: zip
         archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
         replaceExistingArchive: true
 
-    - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+    - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       artifact: drop
 
 - stage: Deploy
@@ -48,7 +51,7 @@ stages:
   condition: succeeded()
   jobs:
   - deployment: Deploy
-    displayName: Deploy
+    displayName: Deploy React App
     environment: $(environmentName)
     pool:
       vmImage: $(vmImageName)
@@ -57,15 +60,10 @@ stages:
         deploy:
           steps:
           - task: AzureRmWebAppDeployment@4
-            displayName: 'Azure App Service Deploy: '
+            displayName: 'Azure App Service Deploy'
             inputs:
               azureSubscription: $(azureSubscription)
               appType: webAppLinux
               WebAppName: $(webAppName)
               packageForLinux: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
               RuntimeStack: 'NODE|20LTS'
-              StartupCommand: 'npm run start'
-              ScriptType: 'Inline Script'
-              InlineScript: |
-                npm install
-                npm run build --if-present
