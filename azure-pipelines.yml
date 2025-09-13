@@ -67,5 +67,5 @@ stages:
               WebAppName: $(webAppName)
               packageForLinux: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
               # RuntimeStack: 'NODE|20LTS'
-              appSettings: |
+              appSettings:
                 REACT_APP_BACKEND_URI $(REACT_APP_BACKEND_URI)
